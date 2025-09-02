@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reports', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // PENTING!
+        // Tambahkan kolom lain yang relevan untuk laporan Anda di sini
+        // Contoh: $table->string('judul_laporan');
+        // Contoh: $table->text('isi_laporan');
+        $table->timestamps();
+    });
     }
 
     /**

@@ -2,31 +2,30 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles; // Pastikan ini ada
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles; // Pastikan HasRoles ada di sini
 
     /**
      * The attributes that are mass assignable.
-     * Kolom-kolom ini boleh diisi secara massal, misalnya saat seeder dijalankan.
      *
      * @var array<int, string>
      */
     protected $fillable = [
         'name',
-        'username', // Tambahkan username
+        'username', // Pastikan username ada di sini
         'email',
         'password',
-        'status', // Tambahkan status
-        'role_id',
-        'parent_id', // Tambahkan parent_id
-        'nama_kelurahan', // Tambahkan info wilayah
-        'nomor_rw',       // Tambahkan info wilayah
-        'nomor_rt',       // Tambahkan info wilayah
+        'parent_id', // Pastikan parent_id ada di sini
+        'nama_kelurahan',
+        'nomor_rw',
+        'nomor_rt',
     ];
 
     /**
@@ -52,28 +51,42 @@ class User extends Authenticatable
         ];
     }
 
+    // ===================================================================
+    // VVV INI ADALAH BAGIAN PERBAIKANNYA VVV
+    // Mendefinisikan semua "grup kontak" atau hubungan yang dimiliki User
+    // ===================================================================
+
     /**
-     * Mendefinisikan relasi: Setiap User memiliki satu Role.
+     * Mendefinisikan relasi one-to-many ke data Resident.
+     * Satu user (RT) bisa menginput banyak data resident.
      */
-    public function role()
+    public function residents()
     {
-        return $this->belongsTo(Role::class);
+        return $this->hasMany(Resident::class);
     }
 
     /**
-     * Mendefinisikan relasi: Setiap User (misal: RT) memiliki satu induk (yaitu RW-nya).
-     * Ini adalah relasi ke model User itu sendiri.
+     * Relasi ke data Year.
      */
-    public function parent()
+    public function years()
     {
-        return $this->belongsTo(User::class, 'parent_id');
+        return $this->hasMany(Year::class);
     }
 
     /**
-     * Mendefinisikan relasi: Setiap User (misal: RW) memiliki banyak anak (yaitu semua RT di bawahnya).
+     * Relasi ke data Education.
      */
-    public function children()
+    public function educations()
     {
-        return $this->hasMany(User::class, 'parent_id');
+        return $this->hasMany(Education::class);
+    }
+
+    /**
+     * Relasi ke data Occupation.
+     */
+    public function occupations()
+    {
+        return $this->hasMany(Occupation::class);
     }
 }
+

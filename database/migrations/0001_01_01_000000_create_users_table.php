@@ -11,13 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Tabel untuk menyimpan peran (roles)
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique(); // SUPERADMIN, KECAMATAN, etc.
-            $table->timestamps();
-        });
-
         // Tabel untuk pengguna (users)
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -28,9 +21,12 @@ return new class extends Migration
             $table->string('password');
             $table->enum('status', ['active', 'pending', 'inactive'])->default('active');
             
-            // Kolom untuk Foreign Key
-            $table->unsignedBiginteger('role_id');
-            $table->unsignedBiginteger('parent_id')->nullable();
+            // --- PERBAIKAN 1: Kolom 'role_id' Dihapus ---
+            // Kolom ini tidak lagi diperlukan karena Spatie akan mengelola relasi
+            // antara user dan role menggunakan tabel terpisah (model_has_roles).
+            // $table->unsignedBiginteger('role_id'); // <-- BARIS INI DIHAPUS
+
+            $table->unsignedBiginteger('parent_id')->nullable(); // Ini tetap ada untuk hierarki Anda
 
             // Kolom untuk informasi wilayah (memudahkan query dan tampilan)
             $table->string('nama_kelurahan')->nullable();
@@ -40,8 +36,11 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
 
-            // Mendefinisikan Foreign Key Constraints
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+            // --- PERBAIKAN 2: Foreign Key untuk 'role_id' Dihapus ---
+            // Karena kolom 'role_id' sudah dihapus, foreign key-nya juga harus dihapus.
+            // $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade'); // <-- BARIS INI DIHAPUS
+            
+            // Foreign Key untuk parent_id tetap ada.
             $table->foreign('parent_id')->references('id')->on('users')->onDelete('set null');
         });
 
@@ -72,6 +71,12 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('users');
-        Schema::dropIfExists('roles');
+
+        // --- PERBAIKAN 3: Drop 'roles' Dihapus ---
+        // File migrasi ini tidak lagi bertanggung jawab untuk membuat tabel 'roles',
+        // jadi seharusnya tidak bertanggung jawab untuk menghapusnya.
+        // Biarkan migrasi dari Spatie yang mengurusnya.
+        // Schema::dropIfExists('roles'); // <-- BARIS INI DIHAPUS
     }
 };
+

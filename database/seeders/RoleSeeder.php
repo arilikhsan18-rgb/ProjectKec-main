@@ -2,28 +2,34 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role; // PENTING: Gunakan model Role dari Spatie
 
 class RoleSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * @return void
      */
     public function run(): void
     {
-        // Kosongkan tabel roles terlebih dahulu
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Role::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Gunakan nama peran dalam HURUF BESAR
-        Role::create(['name' => 'SUPERADMIN']);
-        Role::create(['name' => 'KECAMATAN']);
-        Role::create(['name' => 'KELURAHAN']);
-        Role::create(['name' => 'RW']);
-        Role::create(['name' => 'RT']);
+        // Daftar nama-nama role
+        $roles = [
+            'SUPERADMIN',
+            'KECAMATAN',
+            'KELURAHAN',
+            'RW',
+            'RT',
+        ];
+
+        // Buat setiap role
+        foreach ($roles as $roleName) {
+            // Menggunakan firstOrCreate agar seeder bisa dijalankan berulang kali tanpa error
+            Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+        }
     }
 }
-

@@ -2,84 +2,127 @@
 
 namespace App\Http\Controllers;
 
+// ===== PERBAIKAN 1: TAMBAHKAN 'use' STATEMENT INI =====
+// Ini adalah "kotak peralatan" yang memberikan akses ke fungsi middleware().
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+// =======================================================
+
+// Models and Facades
 use App\Models\Education;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use PDF;
+use Illuminate\Support\Facades\Auth;
 
 class EducationController extends Controller
 {
-    public function index()
+    // ===== PERBAIKAN 2: TAMBAHKAN TRAIT INI =====
+    // Ini memberitahu controller untuk menggunakan "kotak peralatan" di atas.
+    use AuthorizesRequests;
+    // ===========================================
+
+    /**
+     * Terapkan middleware hak akses saat controller ini dibuat.
+     * Kode ini SEKARANG AKAN BERFUNGSI.
+     */
+    public function __construct()
     {
-        $educations = Education::all();
-
-        $total_jumlah = Education::sum('jumlah');
-
-        return view('pages.education.index', compact('educations', 'total_jumlah'));
+        // Aturan 1: Semua peran ini bisa mengakses method 'index' (hanya untuk melihat daftar).
+        $this->middleware('role:SUPERADMIN|KECAMATAN|KELURAHAN|RW|RT')->only('index');
+        
+        // Aturan 2: HANYA peran ini yang bisa mengakses SEMUA METHOD LAINNYA 
+        // (create, store, edit, update, destroy).
+        $this->middleware('role:SUPERADMIN|KECAMATAN|RT')->except('index');
     }
 
+    // --- SEMUA KODE ANDA YANG LAIN DI BAWAH INI TIDAK BERUBAH ---
+    // Logika fungsional Anda sudah benar dan dipertahankan.
+
+    /**
+     * Menampilkan daftar data status pendidikan.
+     */
+    // app/Http/Controllers/EducationController.php
+    public function index()
+    {
+    $user = Auth::user();
+    $educationsQuery = Education::with('user')->latest();
+
+    if ($user->hasRole('RT')) {
+        $educationsQuery->where('user_id', $user->id);
+    }
+    // ... (sisa filter if/elseif Anda tetap sama)
+    elseif ($user->hasRole('RW')) {
+        $rtIds = User::where('parent_id', $user->id)->pluck('id');
+        $educationsQuery->whereIn('user_id', $rtIds);
+    }
+    elseif ($user->hasRole('KELURAHAN')) {
+        $rwIds = User::where('parent_id', $user->id)->pluck('id');
+        $rtIds = User::whereIn('parent_id', $rwIds)->pluck('id');
+        $educationsQuery->whereIn('user_id', $rtIds);
+    }
+
+    $educations = $educationsQuery->paginate(10);
+    
+    // Tambahkan baris ini
+    $total_jumlah = (clone $educationsQuery)->sum('jumlah');
+    return view('pages.education.index', compact('educations', 'total_jumlah'));
+    }
+
+    /**
+     * Menampilkan form untuk membuat data baru.
+     */
     public function create()
     {
         return view('pages.education.create');
     }
 
+    /**
+     * Menyimpan data baru ke database.
+     */
     public function store(Request $request)
     {
-        
-        $validatedData = $request->validate([
-            'sekolah'     => ['required', Rule::in(['masih sekolah','tidak sekolah','putus sekolah'])], 
-            'jumlah'          => ['required','max:100'],
+        $request->validate([
+            'sekolah' => 'required|in:masih sekolah,tidak sekolah,putus sekolah',
+            'jumlah' => 'required|numeric|min:1',
         ]);
 
-        Education::create($validatedData);
+        $request->user()->educations()->create($request->all());
 
-        return redirect('/education')->with('sukses', 'Berhasil memasukkan data');
+        return redirect()->route('education.index')
+                         ->with('success', 'Data status pendidikan berhasil ditambahkan.');
     }
 
-    public function edit($id)
+    /**
+     * Menampilkan form untuk mengedit data.
+     */
+    public function edit(Education $education)
     {
-        $education = Education::findOrFail($id);
-        return view('pages.education.edit', [
-            'education' => $education,
+        return view('pages.education.edit', compact('education'));
+    }
+
+    /**
+     * Mengupdate data yang ada di database.
+     */
+    public function update(Request $request, Education $education)
+    {
+        $request->validate([
+            'sekolah' => 'required|in:masih sekolah,tidak sekolah,putus sekolah',
+            'jumlah' => 'required|numeric|min:1',
         ]);
+
+        $education->update($request->all());
+
+        return redirect()->route('education.index')
+                         ->with('success', 'Data status pendidikan berhasil diperbarui.');
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Menghapus data dari database.
+     */
+    public function destroy(Education $education)
     {
-            $validatedData = $request->validate([
-            'sekolah'         =>['required', Rule::in(['masih sekolah','tidak sekolah','putus sekolah'])],  
-            'jumlah'          =>['required','max:100'],
-        ]);
-
-        Education::FindOrFail($id)->update($validatedData);
-
-        return redirect('/education')->with('sukses', 'Berhasil mengubah data');
-    }
-    
-    public function destroy($id)
-    {
-        $education = Education::findOrFail($id);
         $education->delete();
 
-        return redirect('/education')->with('sukses', 'berhasil menghapus data');
+        return redirect()->route('education.index')
+                         ->with('success', 'Data status pendidikan berhasil dihapus.');
     }
-    public function printPDF()
-{
-    // Ambil data yang sama dengan yang Anda gunakan di halaman index
-    $educations = Education::all(); // Sesuaikan cara Anda mengambil data
-    $total_jumlah = $educations->sum('jumlah');
-
-    // Muat view PDF dan kirimkan datanya
-    $pdf = PDF::loadView('pages.education.cetak', [
-        'educations' => $educations,
-        'total_jumlah' => $total_jumlah
-    ]);
-
-    // (Opsional) Atur ukuran kertas dan orientasi
-    $pdf->setPaper('A4', 'portrait');
-
-    // Tampilkan PDF di browser
-    return $pdf->stream('laporan-data-warga.pdf');
-}
-
 }

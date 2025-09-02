@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Year extends Model
 {
-    protected $table= 'years';
+    use HasFactory;
 
-    protected $guard= [];
+    protected $fillable = ['user_id', 'tahun_lahir', 'jumlah'];
 
-    protected $fillable = [
-        'tahun_lahir', // <-- TAMBAHKAN BARIS INI
-        'jumlah',];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

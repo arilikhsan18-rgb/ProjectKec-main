@@ -1,42 +1,18 @@
 @extends('layouts.app')
 
-@section('content')
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"> Ubah Data Warga</h1>
-    </div>
-    <div class="row">
-        <div class="col">
-            <form action="/resident/{{ $resident->id }}" method="post">
-                @csrf
-                @method('PUT')
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Perhatikan: nama field 'agama' sudah diperbaiki menjadi huruf kecil semua -->
-                        <div class="form-group mb-3">
-                            <label for="status_tinggal">Status Tinggal</label>
-                            <select name="status_tinggal" id="status_tinggal" class="form-control">
-                                <option value="tetap">Tetap</option>
-                                <option value="pindahan">Pindahan</option>    
-                            </select>
-                        </div>
-                        <div class="form-control mb-3">
-                            <label for="jumlah">Jumlah</label>
-                            <input type="text" name="jumlah" id="jumlah' class="form-control">
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-end" style="gap: 10px;">
-                            <a href="/resident" class="btn btn-outline-secondary">
-                                Kembali
-                            </a>
+@section('title', 'Edit Data Kependudukan')
 
-                            <button type="submit" class="btn btn-warning">
-                                Simpan Perubahan
-                            </button>
-                        </div>
-                    </div>
-                </div>
+@section('content')
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Formulir Edit Data Kependudukan</h6>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('resident.update', $resident) }}" method="POST">
+                @method('PUT') {{-- Penting untuk proses update --}}
+                
+                {{-- Memanggil form partial yang sama, tapi data $resident akan otomatis terisi --}}
+                @include('pages.resident._form', ['tombol' => 'Update'])
             </form>
         </div>
     </div>

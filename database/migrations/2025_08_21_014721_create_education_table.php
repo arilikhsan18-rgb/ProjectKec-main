@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('education', function (Blueprint $table) {
-            $table->id();
-            $table->enum('sekolah',['masih sekolah','tidak sekolah','putus sekolah']);
-            $table->string('jumlah');
-            $table->timestamps();
-        });
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+        $table->enum('sekolah',['masih sekolah','tidak sekolah','putus sekolah']);
+        $table->string('jumlah');
+        $table->timestamps();
+    });
     }
 
     /**

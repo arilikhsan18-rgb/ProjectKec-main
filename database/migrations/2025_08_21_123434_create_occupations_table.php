@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('occupations', function (Blueprint $table) {
-            $table->id();
-            $table->enum('pekerjaan', ['bekerja','tidak bekerja','usaha']);
-            $table->string('jumlah');
-            $table->timestamps();
-        });
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+        $table->enum('pekerjaan', ['bekerja','tidak bekerja','usaha']);
+        $table->string('jumlah');
+        $table->timestamps();
+    });
     }
 
     /**

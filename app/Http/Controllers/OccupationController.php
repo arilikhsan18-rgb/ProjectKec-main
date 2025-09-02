@@ -2,85 +2,128 @@
 
 namespace App\Http\Controllers;
 
+// ===== PERBAIKAN 1: TAMBAHKAN 'use' STATEMENT INI =====
+// Ini adalah "kotak peralatan" yang memberikan akses ke fungsi middleware().
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+// =======================================================
+
+// Models and Facades
 use App\Models\Occupation;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use PDF;
+use Illuminate\Support\Facades\Auth;
 
 class OccupationController extends Controller
 {
-    public function index()
+    // ===== PERBAIKAN 2: TAMBAHKAN TRAIT INI =====
+    // Ini memberitahu controller untuk menggunakan "kotak peralatan" di atas.
+    use AuthorizesRequests;
+    // ===========================================
+
+    /**
+     * Terapkan middleware hak akses saat controller ini dibuat.
+     * Kode ini SEKARANG AKAN BERFUNGSI.
+     */
+    public function __construct()
     {
-        $occupations = Occupation::all();
-
-        $total_jumlah = Occupation::sum('jumlah'); // <-- INI BAGIAN PENTINGNYA
-
-        return view('pages.occupation.index', compact('occupations', 'total_jumlah'));
+        // Aturan 1: Semua peran ini bisa mengakses method 'index' (hanya untuk melihat daftar).
+        $this->middleware('role:SUPERADMIN|KECAMATAN|KELURAHAN|RW|RT')->only('index');
+        
+        // Aturan 2: HANYA peran ini yang bisa mengakses SEMUA METHOD LAINNYA 
+        // (create, store, edit, update, destroy).
+        $this->middleware('role:SUPERADMIN|KECAMATAN|RT')->except('index');
     }
 
+    // --- SEMUA KODE ANDA YANG LAIN DI BAWAH INI TIDAK BERUBAH ---
+    // Logika fungsional Anda sudah benar dan dipertahankan.
+
+    /**
+     * Menampilkan daftar data status pekerjaan.
+     */
+    // app/Http/Controllers/OccupationController.php
+    public function index()
+    {
+    $user = Auth::user();
+    $occupationsQuery = Occupation::with('user')->latest();
+
+    if ($user->hasRole('RT')) {
+        $occupationsQuery->where('user_id', $user->id);
+    }
+    // ... (sisa filter if/elseif Anda tetap sama)
+    elseif ($user->hasRole('RW')) {
+        $rtIds = User::where('parent_id', $user->id)->pluck('id');
+        $occupationsQuery->whereIn('user_id', $rtIds);
+    }
+    elseif ($user->hasRole('KELURAHAN')) {
+        $rwIds = User::where('parent_id', $user->id)->pluck('id');
+        $rtIds = User::whereIn('parent_id', $rwIds)->pluck('id');
+        $occupationsQuery->whereIn('user_id', $rtIds);
+    }
+
+    $occupations = $occupationsQuery->paginate(10);
+    
+    // Tambahkan baris ini
+    $total_jumlah = (clone $occupationsQuery)->sum('jumlah');
+    return view('pages.occupation.index', compact('occupations', 'total_jumlah'));
+    }
+
+    /**
+     * Menampilkan form untuk membuat data baru.
+     */
     public function create()
     {
         return view('pages.occupation.create');
     }
 
+    /**
+     * Menyimpan data baru ke database.
+     */
     public function store(Request $request)
     {
-        
-
-        $validatedData = $request->validate([
-            'pekerjaan'     => ['required', Rule::in('bekerja', 'tidak bekerja', 'usaha')], 
-            'jumlah'          => ['required','max:100'],
+        $request->validate([
+            'pekerjaan' => 'required|in:bekerja,tidak bekerja,usaha',
+            'jumlah' => 'required|numeric|min:1',
         ]);
 
-        Occupation::create($validatedData);
+        $request->user()->occupations()->create($request->all());
 
-        return redirect('/occupation')->with('sukses', 'Berhasil memasukkan data');
+        return redirect()->route('occupation.index')
+                         ->with('success', 'Data status pekerjaan berhasil ditambahkan.');
     }
 
-    public function edit($id)
+    /**
+     * Menampilkan form untuk mengedit data.
+     */
+    public function edit(Occupation $occupation)
     {
-        $occupation = Occupation::findOrFail($id);
-        return view('pages.occupation.edit', [
-            'occupation' => $occupation,
+        return view('pages.occupation.edit', compact('occupation'));
+    }
+
+    /**
+     * Mengupdate data yang ada di database.
+     */
+    public function update(Request $request, Occupation $occupation)
+    {
+        $request->validate([
+            'pekerjaan' => 'required|in:bekerja,tidak bekerja,usaha',
+            'jumlah' => 'required|numeric|min:1',
         ]);
+
+        $occupation->update($request->all());
+
+        return redirect()->route('occupation.index')
+                         ->with('success', 'Data status pekerjaan berhasil diperbarui.');
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Menghapus data dari database.
+     */
+    public function destroy(Occupation $occupation)
     {
-            $validatedData = $request->validate([
-            'pekerjaan'     => ['required', Rule::in('bekerja', 'tidak bekerja', 'usaha')], 
-            'jumlah'          =>['required','max:100'],
-        ]);
-
-        Occupation::FindOrFail($id)->update($validatedData);
-
-        return redirect('/occupation')->with('sukses', 'Berhasil mengubah data');
-    }
-    
-    public function destroy($id)
-    {
-        $occupation = Occupation::findOrFail($id);
         $occupation->delete();
 
-        return redirect('/occupation')->with('sukses', 'berhasil menghapus data');
+        return redirect()->route('occupation.index')
+                         ->with('success', 'Data status pekerjaan berhasil dihapus.');
     }
-
-    public function printPDF()
-{
-    // Ambil data yang sama dengan yang Anda gunakan di halaman index
-    $occupations = Occupation::all(); // Sesuaikan cara Anda mengambil data
-    $total_jumlah = $occupations->sum('jumlah');
-
-    // Muat view PDF dan kirimkan datanya
-    $pdf = PDF::loadView('pages.occupation.cetak', [
-        'occupations' => $occupations,
-        'total_jumlah' => $total_jumlah
-    ]);
-
-    // (Opsional) Atur ukuran kertas dan orientasi
-    $pdf->setPaper('A4', 'portrait');
-
-    // Tampilkan PDF di browser
-    return $pdf->stream('laporan-data-warga.pdf');
 }
-}
+

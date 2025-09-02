@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 
 class Occupation extends Model
 {
-    protected $table ='occupations';
+    use HasFactory;
 
-    protected $guard =[];
-    protected $fillable = [
-        'pekerjaan',
-        'jumlah',
-    ];
+    protected $fillable = ['user_id', 'pekerjaan', 'jumlah'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

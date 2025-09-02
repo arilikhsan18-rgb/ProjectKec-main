@@ -1,64 +1,90 @@
 @extends('layouts.app')
 
-@section('content')
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Data Pendidikan</h1>
-        <div>
-        <a href="{{ route('education.cetak') }}" target="_blank" class="d-none d-sm-inline-block btn btn-sm btn-danger btn-success shadow-sm mr-2">
-                <i class="fas fa-print fa-sm text-white-50"></i> Cetak PDF
-            </a>
-        <a href="{{ route('education.create') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50"></i> Tambah
-        </a>
-        </div>
-    </div>
+@section('title', 'Data Status Pendidikan')
 
-    {{-- tabel --}}
-    <div class="row">
-        <div class="col">
-            <div class="card shadow">
-                <div class="card-body">
-                    <table class="table table-bordered table-hovered">
-                        <thead>
+@section('content')
+    <h1 class="h3 mb-2 text-gray-800">Data Status Pendidikan</h1>
+    <p class="mb-4">Berikut adalah data status pendidikan yang telah diinput.</p>
+
+    {{-- Tombol Tambah Data, hanya muncul untuk role yang berhak --}}
+    @hasanyrole('RT|KECAMATAN|SUPERADMIN')
+    <div class="mb-3">
+        <a href="{{ route('education.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Tambah Data</a>
+        <a href="{{ route('education.cetak') }}" class="btn btn-info"><i class="fa fa-print"></i> Cetak PDF</a>
+    </div>
+    @endhasanyrole
+
+    {{-- Pesan Sukses --}}
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Daftar Data</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Status Pendidikan</th>
+                            <th>Jumlah</th>
+                            @unlessrole('RT')
+                            <th>Diinput Oleh</th>
+                            @endunlessrole
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($educations as $key => $education)
                             <tr>
-                                <th>No</th>
-                                <th>Status Sekolah</th>
-                                <th>Jumlah</th>
-                                <th>Aksi</th>
+                                <td>{{ $educations->firstItem() + $key }}</td>
+                                <td>{{ ucwords($education->sekolah) }}</td>
+                                {{-- PERBAIKAN: Menambahkan number_format --}}
+                                <td>{{ number_format($education->jumlah, 0, ',', '.') }}</td>
+                                @unlessrole('RT')
+                                <td>{{ $education->user->name ?? 'N/A' }}</td>
+                                @endunlessrole
+                                <td class="text-center">
+                                    @hasanyrole('RT|KECAMATAN|SUPERADMIN')
+                                    <a href="{{ route('education.edit', $education->id) }}" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
+                                    <form action="{{ route('education.destroy', $education->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-danger btn-sm" title="Hapus"><i class="fa fa-trash"></i></button>
+                                    </form>
+                                    @else
+                                    -
+                                    @endhasanyrole
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($educations as $education)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $education->sekolah }}</td>
-                                    <td>{{ $education->jumlah }}</td>
-                                    <td>
-                                        <div class="d-flex">
-                                            <a href="{{ route('education.edit', $education->id) }}" class="d-inline-block mr-2 btn btn-sm btn-warning">
-                                                <i class="fas fa-pen"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#confirmationDelete-{{ $education->id }}">
-                                                <i class="fas fa-eraser"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @include('pages.education.confirmation-delete')
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">
-                                        <p class="pt-3">Tidak Ada Data</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <div class="d-flex justify-content-end">
-                        <strong>Total Data: {{ $total_jumlah }} Warga</strong>
-                    </div>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center">Data kosong.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    {{-- ======================================================= --}}
+                    {{-- VVV TAMBAHAN: Baris untuk menampilkan total VVV --}}
+                    <tfoot>
+                        <tr>
+                            <th colspan="{{ auth()->user()->hasRole('RT') ? '2' : '3' }}" class="text-right">Total Keseluruhan:</th>
+                            <th>{{ number_format($total_jumlah, 0, ',', '.') }}</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                    {{-- ======================================================= --}}
+                </table>
+            </div>
+            <div class="mt-3">
+                {{ $educations->links() }}
             </div>
         </div>
     </div>

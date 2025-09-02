@@ -1,16 +1,14 @@
 @php
-    // Ambil nama role user sekali saja untuk efisiensi
-    $userRole = auth()->user()->role->name;
-
     // Mengambil data ruangan (sebaiknya ini dipindahkan ke View Composer nanti)
-    $ruangansForSidebar = \App\models\Room::orderBy('name', 'asc')->get();
+    // Untuk saat ini, kita biarkan agar menu dropdown tetap berfungsi.
+    $ruangansForSidebar = \App\Models\Room::orderBy('name', 'asc')->get();
 @endphp
 
 <!-- Sidebar -->
 <ul class="navbar-nav bg-gradient-info sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url('/dashboard') }}">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
         <div class="sidebar-brand-icon">
             <img src="{{ asset('img/tsk.png') }}" alt="Logo" style="width: 40px; border-radius: 60%;">
         </div>
@@ -21,68 +19,61 @@
 
     <!-- Selalu Tampil Untuk Semua Role -->
     <li class="nav-item {{ request()->is('dashboard*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ url('dashboard') }}">
+        <a class="nav-link" href="{{ route('dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
         </a>
     </li>
-
-    {{-- Menu yang bisa di-CRUD RT, dan dilihat oleh semua atasan --}}
-    @if(in_array($userRole, ['SUPERADMIN', 'KECAMATAN', 'KELURAHAN', 'RW', 'RT']))
-        <li class="nav-item {{ request()->is('resident*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ url('resident') }}">
-                <i class="fas fa-fw fa-table"></i>
-                <span>Status Kependudukan</span>
-            </a>
-        </li>
-    @endif
 
     <hr class="sidebar-divider">
     <div class="sidebar-heading">
         Manajemen Data
     </div>
 
-    {{-- Menu yang bisa di-CRUD RT, dan dilihat oleh semua atasan --}}
-    @if(in_array($userRole, ['SUPERADMIN', 'KECAMATAN', 'KELURAHAN', 'RW', 'RT']))
+    {{-- Menu Kependudukan: bisa DILIHAT oleh semua, tapi di-CRUD hanya oleh RT/Admin --}}
+    @hasanyrole('SUPERADMIN|KECAMATAN|KELURAHAN|RW|RT')
+        <li class="nav-item {{ request()->is('resident*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('resident.index') }}">
+                <i class="fas fa-fw fa-table"></i>
+                <span>Status Kependudukan</span>
+            </a>
+        </li>
         <li class="nav-item {{ request()->is('year*') ? 'active' : '' }}">
-            <a class="nav-link" href="/year">
+            <a class="nav-link" href="{{ route('year.index') }}">
                 <i class="fas fa-regular fa-calendar-check"></i>
                 <span>Data Tahun Kelahiran</span>
             </a>
         </li>
         <li class="nav-item {{ request()->is('education*') ? 'active' : '' }}">
-            <a class="nav-link" href="/education">
+            <a class="nav-link" href="{{ route('education.index') }}">
                 <i class="fas fa-regular fa-school"></i>
                 <span>Data Status Pendidikan</span>
             </a>
         </li>
         <li class="nav-item {{ request()->is('occupation*') ? 'active' : '' }}">
-            <a class="nav-link" href="/occupation">
+            <a class="nav-link" href="{{ route('occupation.index') }}">
                 <i class="fas fa-regular fa-city"></i>
                 <span>Data Status Pekerjaan</span>
             </a>
         </li>
-    @endif
+    @endhasanyrole
     
-    {{-- Menu yang hanya bisa dilihat oleh Kelurahan ke atas --}}
-    @if(in_array($userRole, ['SUPERADMIN', 'KECAMATAN', 'KELURAHAN']))
+    {{-- Menu Lingkungan & Barang: hanya bisa DILIHAT oleh Kelurahan ke atas --}}
+    @hasanyrole('SUPERADMIN|KECAMATAN|KELURAHAN')
+        <hr class="sidebar-divider">
         <div class="sidebar-heading">
-            Kondisi Lingkungan
+            Lingkungan & Inventaris
         </div>
 
         <li class="nav-item {{ request()->is('infrastruktur*') ? 'active' : '' }}">
-            <a class="nav-link" href="/infrastruktur">
+            <a class="nav-link" href="{{ route('infrastruktur.index') }}">
                 <i class="fas fa-fw fa-landmark"></i>
                 <span>Data Infrastrukur</span>
             </a>
         </li>
         
-        <div class="sidebar-heading">
-            Data Barang
-        </div>
-
         <li class="nav-item {{ request()->is('room*') ? 'active' : '' }}">
-            <a class="nav-link" href="/room">
+            <a class="nav-link" href="{{ route('room.index') }}">
                 <i class="fas fa-fw fa-door-open"></i>
                 <span>Data Ruangan</span>
             </a>
@@ -99,8 +90,8 @@
                     <h6 class="collapse-header">Pilih Ruangan:</h6>
                     @forelse ($ruangansForSidebar as $ruangan)
                         <a class="collapse-item {{ request('room_id') == $ruangan->id ? 'active' : '' }}" 
-                            href="{{ route('inventaris.index', ['room_id' => $ruangan->id]) }}">
-                            {{ $ruangan->name }}
+                           href="{{ route('inventaris.index', ['room_id' => $ruangan->id]) }}">
+                           {{ $ruangan->name }}
                         </a>
                     @empty
                         <a class="collapse-item" href="{{ route('room.create') }}">Tambah Ruangan Dulu</a>
@@ -108,30 +99,32 @@
                 </div>
             </div>
         </li>
-    @endif
+    @endhasanyrole
 
     <hr class="sidebar-divider">
     <div class="sidebar-heading">
         Data Akun & Laporan
     </div>
     
-    {{-- Menu Akun hanya untuk Super Admin --}}
-    @if($userRole == 'SUPERADMIN')
+    {{-- Menu Akun: hanya untuk Super Admin --}}
+    @hasrole('SUPERADMIN')
         <li class="nav-item {{ request()->is('user*') ? 'active' : '' }}">
-            <a class="nav-link" href="/user">
+            <a class="nav-link" href="{{ route('user.index') }}">
                 <i class="fas fa-regular fa-user"></i>
                 <span>Account</span>
             </a>
         </li>
-    @endif
+    @endhasrole
     
-    {{-- Menu Laporan untuk semua --}}
-    <li class="nav-item {{ request()->is('report*') ? 'active' : '' }}">
-        <a class="nav-link" href="/report">
-            <i class="fas fa-regular fa-print"></i>
-            <span>Laporan Keseluruhan</span>
-        </a>
-    </li>
+    {{-- Menu Laporan: hanya untuk RW ke atas. RT tidak boleh lihat menu ini. --}}
+    @hasanyrole('RW|KELURAHAN|KECAMATAN|SUPERADMIN')
+        <li class="nav-item {{ request()->is('report*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('report.index') }}">
+                <i class="fas fa-regular fa-print"></i>
+                <span>Laporan Keseluruhan</span>
+            </a>
+        </li>
+    @endhasanyrole
 
     <hr class="sidebar-divider d-none d-md-block">
     <div class="text-center d-none d-md-inline">

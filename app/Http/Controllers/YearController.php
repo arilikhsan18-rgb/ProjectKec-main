@@ -2,22 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Year;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use PDF;
+use Illuminate\Support\Facades\Auth;
 
 class YearController extends Controller
 {
-    public function index()
+    use AuthorizesRequests;
+
+    public function __construct()
     {
-        $years = Year::all();
-
-        $total_jumlah = Year::sum('jumlah');
-
-        return view('pages.year.index', compact('years'));
+        $this->middleware('role:SUPERADMIN|KECAMATAN|KELURAHAN|RW|RT')->only('index');
+        $this->middleware('role:SUPERADMIN|KECAMATAN|RT')->except('index');
     }
 
+    public function index()
+{
+    $user = Auth::user();
+    $yearsQuery = Year::with('user')->latest();
+
+    if ($user->hasRole('RT')) {
+        $yearsQuery->where('user_id', $user->id);
+    }
+    elseif ($user->hasRole('RW')) {
+        $rtIds = User::where('parent_id', $user->id)->pluck('id');
+        $yearsQuery->whereIn('user_id', $rtIds);
+    }
+    elseif ($user->hasRole('KELURAHAN')) {
+         $rwIds = User::where('parent_id', $user->id)->pluck('id');
+         $rtIds = User::whereIn('parent_id', $rwIds)->pluck('id');
+         $yearsQuery->whereIn('user_id', $rtIds);
+    }
+
+    $years = $yearsQuery->paginate(10);
+    
+    // =======================================================
+    // VVV TAMBAHAN: Hitung total dan kirim ke view VVV
+    $total_jumlah = (clone $yearsQuery)->sum('jumlah');
+    return view('pages.year.index', compact('years', 'total_jumlah'));
+    // =======================================================
+}
+    
     public function create()
     {
         return view('pages.year.create');
@@ -25,61 +52,33 @@ class YearController extends Controller
 
     public function store(Request $request)
     {
-        
-
-        $validatedData = $request->validate([
-            'tahun_lahir'     => ['required', 'max:100'], 
-            'jumlah'          => ['required','max:100'],
+        $request->validate([
+            'tahun_lahir' => 'required|numeric|digits:4',
+            'jumlah' => 'required|numeric|min:1',
         ]);
-
-        Year::create($validatedData);
-
-        return redirect('/year')->with('sukses', 'Berhasil memasukkan data');
+        $request->user()->years()->create($request->all());
+        return redirect()->route('year.index')->with('success', 'Data tahun kelahiran berhasil ditambahkan.');
     }
 
-    public function edit($id)
+    public function edit(Year $year)
     {
-        $year = Year::findOrFail($id);
-        return view('pages.year.edit', [
-            'year' => $year,
-        ]);
+        return view('pages.year.edit', compact('year'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Year $year)
     {
-            $validatedData = $request->validate([
-            'tahun_lahir'     => ['required', 'max:100'], 
-            'jumlah'          =>['required','max:100'],
+        $request->validate([
+            'tahun_lahir' => 'required|numeric|digits:4',
+            'jumlah' => 'required|numeric|min:1',
         ]);
-
-        Year::FindOrFail($id)->update($validatedData);
-
-        return redirect('/year')->with('sukses', 'Berhasil mengubah data');
+        $year->update($request->all());
+        return redirect()->route('year.index')->with('success', 'Data tahun kelahiran berhasil diperbarui.');
     }
-    
-    public function destroy($id)
+
+    public function destroy(Year $year)
     {
-        $year = Year::findOrFail($id);
         $year->delete();
-
-        return redirect('/year')->with('sukses', 'berhasil menghapus data');
+        return redirect()->route('year.index')->with('success', 'Data tahun kelahiran berhasil dihapus.');
     }
-        public function printPDF()
-{
-    // Ambil data yang sama dengan yang Anda gunakan di halaman index
-    $years = Year::all(); // Sesuaikan cara Anda mengambil data
-    $total_jumlah = $years->sum('jumlah');
-
-    // Muat view PDF dan kirimkan datanya
-    $pdf = PDF::loadView('pages.year.cetak', [
-        'years' => $years,
-        'total_jumlah' => $total_jumlah
-    ]);
-
-    // (Opsional) Atur ukuran kertas dan orientasi
-    $pdf->setPaper('A4', 'portrait');
-
-    // Tampilkan PDF di browser
-    return $pdf->stream('laporan-data-warga.pdf');
 }
-}
+

@@ -2,37 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Role; // PENAMBAHAN: Tambahkan model Role
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash; // PENAMBAHAN: Untuk hashing password
-use Illuminate\Validation\Rule; // PENAMBAHAN: Untuk validasi email unik saat update
+// ===== PERBAIKAN: Gunakan Trait untuk middleware =====
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-// NOTE: Karena Anda menggunakan 'PDF', pastikan package-nya sudah ter-install
-// dengan benar, contohnya barryvdh/laravel-dompdf
+// ===== PERBAIKAN: Gunakan Model dan Class yang Benar =====
+use App\Models\User;
+use Spatie\Permission\Models\Role; // <-- Gunakan Role dari Spatie
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+
+// NOTE: Karena Anda mungkin akan menambahkan fitur PDF, 'use PDF;' dipertahankan
 use PDF;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests; // <-- Tambahkan Trait ini
+
     /**
-     * Menampilkan daftar semua pengguna.
+     * Terapkan middleware hak akses. Hanya SUPERADMIN yang boleh masuk.
+     */
+    public function __construct()
+    {
+        $this->middleware('role:SUPERADMIN');
+    }
+
+    /**
+     * Menampilkan daftar semua pengguna dengan fitur pencarian dan paginasi.
      */
     public function index(Request $request)
     {
         $search = $request->query('search');
-        // Ambil 'limit' dari URL, jika tidak ada, defaultnya adalah 10
-        $limit = $request->query('limit', 10); 
+        $limit = $request->query('limit', 10);
 
-        $usersQuery = User::with('role');
+        // Ambil semua user KECUALI Superadmin itu sendiri
+        $usersQuery = User::whereHas('roles', fn($q) => $q->where('name', '!=', 'SUPERADMIN'))
+                          ->with('roles'); // Eager load roles untuk efisiensi
 
         if ($search) {
             $usersQuery->where(function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('username', 'like', "%{$search}%")
                       ->orWhere('email', 'like', "%{$search}%");
             });
         }
         
-        // GANTI .get() DENGAN .paginate($limit)
         $users = $usersQuery->orderBy('name', 'asc')->paginate($limit);
 
         return view('pages.user.index', compact('users'));
@@ -43,9 +57,12 @@ class UserController extends Controller
      */
     public function create()
     {
-        // PENAMBAHAN: Mengambil data roles untuk ditampilkan di form
-        $roles = Role::all();
-        return view('pages.user.create', compact('roles'));
+        // Ambil semua role KECUALI Superadmin untuk ditampilkan di dropdown
+        $roles = Role::where('name', '!=', 'SUPERADMIN')->pluck('name', 'id');
+        // Ambil semua user untuk pilihan 'parent' (atasan)
+        $parents = User::orderBy('name')->pluck('name', 'id');
+
+        return view('pages.user.create', compact('roles', 'parents'));
     }
 
     /**
@@ -53,66 +70,78 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // REVISI: Sesuaikan validasi dengan form create.blade.php
-        $validatedData = $request->validate([
+        // Validasi yang disesuaikan dengan struktur baru
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'min:8', 'confirmed'],
-            'status' => ['required', 'in:aktif,tidak aktif'],
-            'role_id' => ['required', 'exists:roles,id'],
+            'username' => ['required', 'string', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'exists:roles,id'], // Validasi role_id dari form
+            'parent_id' => ['nullable', 'exists:users,id'],
         ]);
 
-        // REVISI (SANGAT PENTING): Hash password sebelum disimpan
-        $validatedData['password'] = Hash::make($validatedData['password']);
+        // Buat user baru
+        $user = User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'parent_id' => $request->parent_id,
+        ]);
 
-        User::create($validatedData);
+        // ===== PERBAIKAN: Gunakan assignRole() dari Spatie =====
+        $user->assignRole($request->role);
 
-        // REVISI: Gunakan helper route() dan ganti pesan sukses
-        return redirect()->route('user.index')->with('success', 'Pengguna baru berhasil ditambahkan.');
+        return redirect()->route('user.index')->with('success', 'Pengguna baru berhasil dibuat.');
     }
 
     /**
      * Menampilkan form untuk mengedit data pengguna.
-     * REVISI: Menggunakan Route Model Binding untuk kode yang lebih bersih.
      */
-    public function edit(User $user) // <-- Perhatikan perubahan di sini
+    public function edit(User $user)
     {
-        // PENAMBAHAN: Kirim juga data roles ke view edit
-        $roles = Role::all();
-        return view('pages.user.edit', compact('user', 'roles'));
+        $roles = Role::where('name', '!=', 'SUPERADMIN')->pluck('name', 'id');
+        // Pastikan user tidak bisa menjadi atasan untuk dirinya sendiri
+        $parents = User::where('id', '!=', $user->id)->orderBy('name')->pluck('name', 'id');
+
+        return view('pages.user.edit', compact('user', 'roles', 'parents'));
     }
 
     /**
      * Memperbarui data pengguna di database.
-     * REVISI: Menggunakan Route Model Binding.
      */
     public function update(Request $request, User $user)
     {
-        // REVISI: Sesuaikan validasi dengan form edit.blade.php
-        $validatedData = $request->validate([
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'status' => ['required', 'in:aktif,tidak aktif'],
-            'role_id' => ['required', 'exists:roles,id'],
-            'password' => ['nullable', 'min:8', 'confirmed'], // Password opsional
+            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $user->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'role' => ['required', 'exists:roles,id'],
+            'parent_id' => ['nullable', 'exists:users,id'],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()], // Password opsional
         ]);
 
-        // REVISI: Logika untuk update password jika diisi
+        // Update data dasar user
+        $user->update([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'parent_id' => $request->parent_id,
+        ]);
+
+        // Update password hanya jika diisi
         if ($request->filled('password')) {
-            $validatedData['password'] = Hash::make($validatedData['password']);
-        } else {
-            // Jika password tidak diisi, hapus dari array agar tidak menimpa password lama
-            unset($validatedData['password']);
+            $user->update(['password' => Hash::make($request->password)]);
         }
 
-        $user->update($validatedData);
+        // ===== PERBAIKAN: Gunakan syncRoles() dari Spatie untuk update =====
+        $user->syncRoles([$request->role]);
 
         return redirect()->route('user.index')->with('success', 'Data pengguna berhasil diperbarui.');
     }
 
     /**
      * Menghapus data pengguna dari database.
-     * REVISI: Menggunakan Route Model Binding.
      */
     public function destroy(User $user)
     {
@@ -125,21 +154,14 @@ class UserController extends Controller
      */
     public function printPDF()
     {
-        $users = User::all();
-
-        // REVISI: Logika 'sum('jumlah')' tidak relevan untuk user, jadi dihapus.
-        // Anda bisa menambahkan data lain jika perlu, misal total pengguna.
+        // Ambil semua user KECUALI Superadmin
+        $users = User::whereHas('roles', fn($q) => $q->where('name', '!=', 'SUPERADMIN'))->get();
         $total_users = $users->count();
 
-        $pdf = PDF::loadView('pages.user.cetak', [
-            'users' => $users,
-            'total_users' => $total_users
-        ]);
-
+        $pdf = PDF::loadView('pages.user.cetak', compact('users', 'total_users'));
         $pdf->setPaper('A4', 'portrait');
 
-        // REVISI: Nama file laporan disesuaikan
         return $pdf->stream('laporan-data-pengguna.pdf');
     }
-    
 }
+
