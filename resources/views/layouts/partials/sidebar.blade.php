@@ -62,7 +62,7 @@
     @hasanyrole('SUPERADMIN|KECAMATAN|KELURAHAN')
         <hr class="sidebar-divider">
         <div class="sidebar-heading">
-            Lingkungan & Inventaris
+            Lingkungan
         </div>
 
         <li class="nav-item {{ request()->is('infrastruktur*') ? 'active' : '' }}">
@@ -71,43 +71,14 @@
                 <span>Data Infrastrukur</span>
             </a>
         </li>
-        
-        <li class="nav-item {{ request()->is('room*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('room.index') }}">
-                <i class="fas fa-fw fa-door-open"></i>
-                <span>Data Ruangan</span>
-            </a>
-        </li>
-
-        <li class="nav-item {{ request()->is('inventaris*') ? 'active' : '' }}">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInventaris"
-                aria-expanded="true" aria-controls="collapseInventaris">
-                <i class="fas fa-fw fa-boxes"></i>
-                <span>Data Inventori Ruangan</span>
-            </a>
-            <div id="collapseInventaris" class="collapse {{ request()->is('inventaris*') ? 'show' : '' }}" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Pilih Ruangan:</h6>
-                    @forelse ($ruangansForSidebar as $ruangan)
-                        <a class="collapse-item {{ request('room_id') == $ruangan->id ? 'active' : '' }}" 
-                           href="{{ route('inventaris.index', ['room_id' => $ruangan->id]) }}">
-                           {{ $ruangan->name }}
-                        </a>
-                    @empty
-                        <a class="collapse-item" href="{{ route('room.create') }}">Tambah Ruangan Dulu</a>
-                    @endforelse
-                </div>
-            </div>
-        </li>
     @endhasanyrole
-
+    
+    {{-- Menu Akun: hanya untuk Super Admin --}}
+    @hasrole('SUPERADMIN')
     <hr class="sidebar-divider">
     <div class="sidebar-heading">
         Data Akun & Laporan
     </div>
-    
-    {{-- Menu Akun: hanya untuk Super Admin --}}
-    @hasrole('SUPERADMIN')
         <li class="nav-item {{ request()->is('user*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('user.index') }}">
                 <i class="fas fa-regular fa-user"></i>

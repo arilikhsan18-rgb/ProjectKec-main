@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Year;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; // <-- PASTIKAN INI DI-IMPORT
 use Illuminate\Support\Facades\Auth;
 
 class YearController extends Controller
@@ -18,32 +18,40 @@ class YearController extends Controller
         $this->middleware('role:SUPERADMIN|KECAMATAN|RT')->except('index');
     }
 
-    public function index()
-{
-    $user = Auth::user();
-    $yearsQuery = Year::with('user')->latest();
+    // Ubah method index menjadi seperti ini
+    public function index(Request $request) // 1. Tambahkan Request $request
+    {
+        $user = Auth::user();
+        $search = $request->input('search'); // 2. Ambil input pencarian
 
-    if ($user->hasRole('RT')) {
-        $yearsQuery->where('user_id', $user->id);
-    }
-    elseif ($user->hasRole('RW')) {
-        $rtIds = User::where('parent_id', $user->id)->pluck('id');
-        $yearsQuery->whereIn('user_id', $rtIds);
-    }
-    elseif ($user->hasRole('KELURAHAN')) {
-         $rwIds = User::where('parent_id', $user->id)->pluck('id');
-         $rtIds = User::whereIn('parent_id', $rwIds)->pluck('id');
-         $yearsQuery->whereIn('user_id', $rtIds);
-    }
+        // Query dasar tetap sama
+        $yearsQuery = Year::with('user')->latest();
 
-    $years = $yearsQuery->paginate(10);
-    
-    // =======================================================
-    // VVV TAMBAHAN: Hitung total dan kirim ke view VVV
-    $total_jumlah = (clone $yearsQuery)->sum('jumlah');
-    return view('pages.year.index', compact('years', 'total_jumlah'));
-    // =======================================================
-}
+        // Filter berdasarkan role (logika Anda yang sudah ada)
+        if ($user->hasRole('RT')) {
+            $yearsQuery->where('user_id', $user->id);
+        } elseif ($user->hasRole('RW')) {
+            $rtIds = User::where('parent_id', $user->id)->pluck('id');
+            $yearsQuery->whereIn('user_id', $rtIds);
+        } elseif ($user->hasRole('KELURAHAN')) {
+            $rwIds = User::where('parent_id', $user->id)->pluck('id');
+            $rtIds = User::whereIn('parent_id', $rwIds)->pluck('id');
+            $yearsQuery->whereIn('user_id', $rtIds);
+        }
+        
+        // 3. Tambahkan filter pencarian setelah filter role
+        if ($search) {
+            $yearsQuery->where('tahun_lahir', 'like', '%' . $search . '%');
+        }
+
+        // 4. Hitung total jumlah dari data yang sudah difilter (pencarian + role)
+        $total_jumlah = (clone $yearsQuery)->sum('jumlah');
+
+        // 5. Paginate hasil akhir dan tambahkan parameter search ke link paginasi
+        $years = $yearsQuery->paginate(10)->appends(['search' => $search]);
+
+        return view('pages.year.index', compact('years', 'total_jumlah'));
+    }
     
     public function create()
     {
@@ -81,4 +89,3 @@ class YearController extends Controller
         return redirect()->route('year.index')->with('success', 'Data tahun kelahiran berhasil dihapus.');
     }
 }
-

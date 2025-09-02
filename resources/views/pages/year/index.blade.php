@@ -26,57 +26,79 @@
             <h6 class="m-0 font-weight-bold text-primary">Daftar Data</h6>
         </div>
         <div class="card-body">
+            
+            {{-- ======================================================= --}}
+            {{-- VVV TAMBAHAN: Form Pencarian VVV --}}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <form action="{{ route('year.index') }}" method="GET">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan tahun..." value="{{ request('search') }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i> Cari</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {{-- ======================================================= --}}
+
             <div class="table-responsive">
-    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Tahun Kelahiran</th>
-                <th>Jumlah</th>
-                @unlessrole('RT')
-                <th>Diinput Oleh</th>
-                @endunlessrole
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($years as $key => $year)
-                <tr>
-                    <td>{{ $years->firstItem() + $key }}</td>
-                    <td>{{ $year->tahun_lahir }}</td>
-                    <td>{{ number_format($year->jumlah, 0, ',', '.') }}</td>
-                    @unlessrole('RT')
-                    <td>{{ $year->user->name ?? 'N/A' }}</td>
-                    @endunlessrole
-                    <td class="text-center">
-                        @hasanyrole('RT|KECAMATAN|SUPERADMIN')
-                        <a href="{{ route('year.edit', $year->id) }}" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
-                        <form action="{{ route('year.destroy', $year->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger btn-sm" title="Hapus"><i class="fa fa-trash"></i></button>
-                        </form>
-                        @else
-                        -
-                        @endhasanyrole
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="text-center">Data kosong.</td>
-                </tr>
-            @endforelse
-        </tbody>
-        {{-- ======================================================= --}}
-        {{-- VVV TAMBAHAN: Baris untuk menampilkan total VVV --}}
-        <tfoot>
-            <tr>
-                <th colspan="{{ auth()->user()->hasRole('RT') ? '2' : '3' }}" class="text-right">Total Keseluruhan:</th>
-                <th>{{ number_format($total_jumlah, 0, ',', '.') }}</th>
-                <th></th>
-            </tr>
-        </tfoot>
-        {{-- ======================================================= --}}
-    </table>
-</div>
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tahun Kelahiran</th>
+                            <th>Jumlah</th>
+                            @unlessrole('RT')
+                            <th>Diinput Oleh</th>
+                            @endunlessrole
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($years as $key => $year)
+                            <tr>
+                                <td>{{ $years->firstItem() + $key }}</td>
+                                <td>{{ $year->tahun_lahir }}</td>
+                                <td>{{ number_format($year->jumlah, 0, ',', '.') }}</td>
+                                @unlessrole('RT')
+                                <td>{{ $year->user->name ?? 'N/A' }}</td>
+                                @endunlessrole
+                                <td class="text-center">
+                                    @hasanyrole('RT|KECAMATAN|SUPERADMIN')
+                                    <a href="{{ route('year.edit', $year->id) }}" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
+                                    <form action="{{ route('year.destroy', $year->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-danger btn-sm" title="Hapus"><i class="fa fa-trash"></i></button>
+                                    </form>
+                                    @else
+                                    -
+                                    @endhasanyrole
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center">Data tidak ditemukan.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="{{ auth()->user()->hasRole('RT') ? '2' : '3' }}" class="text-right">Total Keseluruhan:</th>
+                            <th>{{ number_format($total_jumlah, 0, ',', '.') }}</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            {{-- Tambahan: Tampilkan Link Paginasi --}}
+            <div class="d-flex justify-content-center">
+                {{ $years->links() }}
+            </div>
+
+        </div>
+    </div>
 @endsection
