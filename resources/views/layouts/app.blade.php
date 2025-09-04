@@ -7,10 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {{-- REVISI 2: Meta tags diisi untuk informasi yang lebih baik --}}
     <meta name="description" content="Sistem Informasi Kependudukan Kecamatan Tawang">
-    <meta name="author" content="Tim Pengembang SIDIUK">
+    <meta name="author" content="Tim Pengembang SIDAKEP">
 
     {{-- REVISI 3: Judul halaman dibuat dinamis --}}
-    <title>@yield('title', 'Dashboard') | SIDIUK</title>
+    <title>@yield('title', 'Dashboard') | SIDAKEP</title>
 
     <link rel="icon" href="{{ asset('img/tsk.png') }}" type="image/png">
     <link href="{{ asset('template/vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">
@@ -87,6 +87,22 @@
     {{-- Stack untuk script spesifik per halaman --}}
     @stack('scripts')
 
+    <style>
+        /* CSS BARU UNTUK MEMPERCANTIK HEADER BAGIAN DALAM TABEL */
+.data-table .table-section-header td {
+    background-color: #f8f9fc; /* Warna latar abu-abu terang, sesuai tema */
+    font-weight: 600;
+    color: #4e73df; /* Warna biru primer dari tema */
+    border-top: 2px solid #4e73df; /* Garis aksen biru di atas */
+    font-size: 1rem;
+}
+
+.data-table .fas {
+    margin-right: 10px; /* Jarak antara ikon dan teks */
+    width: 20px; /* Agar ikon rapi sejajar */
+    text-align: center;
+}
+    </style>
 </body>
 
 </html>

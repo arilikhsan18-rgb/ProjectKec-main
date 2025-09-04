@@ -4,7 +4,7 @@
             
             {{-- Bagian Kiri: Copyright --}}
             <span class="text-left">
-                Copyright &copy; SIDIUK {{ date('Y') }}. Dibuat dengan ❤️ di Tasikmalaya.
+                Copyright &copy; SIDAKEP {{ date('Y') }}. Dibuat dengan ❤️ di Tasikmalaya.
             </span>
 
             {{-- Bagian Kanan: Versi Aplikasi (Praktik yang Baik) --}}

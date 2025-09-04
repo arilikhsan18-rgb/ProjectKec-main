@@ -12,7 +12,7 @@
         <div class="sidebar-brand-icon">
             <img src="{{ asset('img/tsk.png') }}" alt="Logo" style="width: 40px; border-radius: 60%;">
         </div>
-        <div class="sidebar-brand-text mx-3">SIDIUK</div>
+        <div class="sidebar-brand-text mx-3">SIDAKEP</div>
     </a>
 
     <hr class="sidebar-divider my-0">
