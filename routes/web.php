@@ -2,7 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\EducationController;
+use App\Http\Controllers\GenderController;
+use App\Http\Controllers\LampidController;
+use App\Http\Controllers\GeografisController;
+use App\Http\Controllers\FasumController;
 use App\Http\Controllers\InfrastrukturController;
 use App\Http\Controllers\InventarisController;
 use App\Http\Controllers\OccupationController;
@@ -35,6 +40,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
 
     // Daftarkan rute kustom (seperti cetak) SEBELUM Route::resource
     Route::get('/resident/cetak', [ResidentController::class, 'printPDF'])->name('resident.cetak');
@@ -42,11 +48,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/education/cetak', [EducationController::class, 'printPDF'])->name('education.cetak');
     Route::get('/occupation/cetak', [OccupationController::class, 'printPDF'])->name('occupation.cetak');
 
-    // --- KEPENDUDUKAN (Hak akses diatur di dalam Controller) ---
+    Route::get('/infrastruktur/cetak', [InfrastrukturController::class, 'printPDF'])->name('infrastruktur.cetak');
+    Route::get('/room/cetak', [RoomController::class, 'printPDF'])->name('room.cetak');
+
+    // --- DATA  PROFIL (Hak akses diatur di dalam Controller) ---
     Route::resource('resident', ResidentController::class);
     Route::resource('year', YearController::class);
     Route::resource('education', EducationController::class);
     Route::resource('occupation', OccupationController::class);
+    Route::resource('gender', GenderController::class);
+    Route::resource('lampid', LampidController::class);
+    Route::resource('fasum', FasumController::class);
+    Route::resource('geografis', GeografisController::class);
 
     // --- LINGKUNGAN & BARANG (Hak akses diatur di dalam Controller) ---
     Route::resource('infrastruktur', InfrastrukturController::class);

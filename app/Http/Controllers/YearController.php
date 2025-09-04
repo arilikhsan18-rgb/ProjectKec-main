@@ -19,39 +19,49 @@ class YearController extends Controller
     }
 
     // Ubah method index menjadi seperti ini
-    public function index(Request $request) // 1. Tambahkan Request $request
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $search = $request->input('search'); // 2. Ambil input pencarian
+        // 1. Ambil dua input untuk rentang tahun
+        $startYear = $request->input('start_year');
+        $endYear = $request->input('end_year');
 
-        // Query dasar tetap sama
         $yearsQuery = Year::with('user')->latest();
 
-        // Filter berdasarkan role (logika Anda yang sudah ada)
-        if ($user->hasRole('RT')) {
-            $yearsQuery->where('user_id', $user->id);
-        } elseif ($user->hasRole('RW')) {
-            $rtIds = User::where('parent_id', $user->id)->pluck('id');
-            $yearsQuery->whereIn('user_id', $rtIds);
-        } elseif ($user->hasRole('KELURAHAN')) {
-            $rwIds = User::where('parent_id', $user->id)->pluck('id');
-            $rtIds = User::whereIn('parent_id', $rwIds)->pluck('id');
-            $yearsQuery->whereIn('user_id', $rtIds);
-        }
-        
-        // 3. Tambahkan filter pencarian setelah filter role
-        if ($search) {
-            $yearsQuery->where('tahun_lahir', 'like', '%' . $search . '%');
-        }
-
-        // 4. Hitung total jumlah dari data yang sudah difilter (pencarian + role)
-        $total_jumlah = (clone $yearsQuery)->sum('jumlah');
-
-        // 5. Paginate hasil akhir dan tambahkan parameter search ke link paginasi
-        $years = $yearsQuery->paginate(10)->appends(['search' => $search]);
-
-        return view('pages.year.index', compact('years', 'total_jumlah'));
+    // Filter berdasarkan role (logika Anda yang sudah ada)
+    if ($user->hasRole('RT')) {
+        $yearsQuery->where('user_id', $user->id);
+    } elseif ($user->hasRole('RW')) {
+        $rtIds = User::where('parent_id', $user->id)->pluck('id');
+        $yearsQuery->whereIn('user_id', $rtIds);
+    } elseif ($user->hasRole('KELURAHAN')) {
+        $rwIds = User::where('parent_id', $user->id)->pluck('id');
+        $rtIds = User::whereIn('parent_id', $rwIds)->pluck('id');
+        $yearsQuery->whereIn('user_id', $rtIds);
     }
+    
+    // 2. Logika baru untuk filter rentang tahun
+    // Jika ada input tahun awal, cari yang lebih besar atau sama dengan
+    if ($startYear) {
+        $yearsQuery->where('tahun_lahir', '>=', $startYear);
+    }
+
+    // Jika ada input tahun akhir, cari yang lebih kecil atau sama dengan
+    if ($endYear) {
+        $yearsQuery->where('tahun_lahir', '<=', $endYear);
+    }
+    
+    // Hitung total jumlah dari data yang sudah difilter
+    $total_jumlah = (clone $yearsQuery)->sum('jumlah');
+
+    // 3. Paginate dan tambahkan kedua parameter ke link paginasi
+    $years = $yearsQuery->paginate(10)->appends([
+        'start_year' => $startYear,
+        'end_year' => $endYear,
+    ]);
+
+    return view('pages.year.index', compact('years', 'total_jumlah'));
+}
     
     public function create()
     {

@@ -24,6 +24,7 @@ class UserSeeder extends Seeder
         User::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
+        
         // Ambil objek Role dari setiap peran yang sudah ada di database
         // Pastikan Anda sudah menjalankan RoleSeeder terlebih dahulu
         $superAdminRole = Role::where('name', 'SUPERADMIN')->firstOrFail();

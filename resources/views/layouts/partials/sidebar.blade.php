@@ -27,49 +27,36 @@
 
     <hr class="sidebar-divider">
     <div class="sidebar-heading">
-        Manajemen Data
+        Data Profil
     </div>
 
     {{-- Menu Kependudukan: bisa DILIHAT oleh semua, tapi di-CRUD hanya oleh RT/Admin --}}
     @hasanyrole('SUPERADMIN|KECAMATAN|KELURAHAN|RW|RT')
-        <li class="nav-item {{ request()->is('resident*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('resident.index') }}">
+        <li class="nav-item {{ request()->is('profil*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('profil') }}">
                 <i class="fas fa-fw fa-table"></i>
-                <span>Status Kependudukan</span>
+                <span>Profil</span>
             </a>
         </li>
-        <li class="nav-item {{ request()->is('year*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('year.index') }}">
-                <i class="fas fa-regular fa-calendar-check"></i>
-                <span>Data Tahun Kelahiran</span>
+        <li class="nav-item {{ request()->is('data*') ? 'active' : '' }}">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsedata" aria-expanded="true" aria-controls="collapsedata">
+            <i class="fas fa-fw fa-archive"></i>
+            <span>Data Profil</span>
             </a>
-        </li>
-        <li class="nav-item {{ request()->is('education*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('education.index') }}">
-                <i class="fas fa-regular fa-school"></i>
-                <span>Data Status Pendidikan</span>
-            </a>
-        </li>
-        <li class="nav-item {{ request()->is('occupation*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('occupation.index') }}">
-                <i class="fas fa-regular fa-city"></i>
-                <span>Data Status Pekerjaan</span>
-            </a>
-        </li>
-    @endhasanyrole
-    
-    {{-- Menu Lingkungan & Barang: hanya bisa DILIHAT oleh Kelurahan ke atas --}}
-    @hasanyrole('SUPERADMIN|KECAMATAN|KELURAHAN')
-        <hr class="sidebar-divider">
-        <div class="sidebar-heading">
-            Lingkungan
-        </div>
-
-        <li class="nav-item {{ request()->is('infrastruktur*') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('infrastruktur.index') }}">
-                <i class="fas fa-fw fa-landmark"></i>
-                <span>Data Infrastrukur</span>
-            </a>
+            <div id="collapsedata" class="collapse {{ request()->is('data*') ? 'show' : '' }}" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Pilih Data:</h6>
+                    <a class="collapse-item" href="{{ route('geografis.index') }}">Geografis</a>
+                    <a class="collapse-item" href="{{ route('fasum.index') }}">Fasilitas Umum</a>
+                    <a class="collapse-item" href="{{ route('lampid.index') }}">Lampid</a>
+                    <a class="collapse-item" href="{{ route('year.index') }}">Tahun Kelahiran</a>
+                    <a class="collapse-item" href="{{ route('gender.index') }}">Gender</a>
+                    <a class="collapse-item" href="{{ route('education.index') }}">Pendidikan</a>
+                    <a class="collapse-item" href="{{ route('occupation.index') }}">Pekerjaan</a>
+                    <a class="collapse-item" href="{{ route('resident.index') }}">Kependudukan</a>
+                    <a class="collapse-item" href="{{ route('infrastruktur.index') }}">Infrastrukur</a>
+                </div>
+            </div>
         </li>
     @endhasanyrole
     

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('education', function (Blueprint $table) {
         $table->id();
         $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-        $table->enum('sekolah',['masih sekolah','tidak sekolah','putus sekolah']);
+        $table->enum('sekolah',['belum sekolah','sd','smp','sma','kuliah','putus sekolah']);
         $table->string('jumlah');
         $table->timestamps();
     });

@@ -83,6 +83,7 @@
     {{-- Script untuk Chart (opsional) --}}
     <script src="{{ asset('template/vendor/chart.js/Chart.min.js')}}"></script>
     
+    
     {{-- Stack untuk script spesifik per halaman --}}
     @stack('scripts')
 
