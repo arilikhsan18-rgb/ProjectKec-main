@@ -15,7 +15,6 @@
         <div class="sidebar-brand-text mx-3">SIDAKEP</div>
     </a>
 
-    <hr class="sidebar-divider my-0">
 
     <!-- Selalu Tampil Untuk Semua Role -->
     <li class="nav-item {{ request()->is('dashboard*') ? 'active' : '' }}">
@@ -25,7 +24,8 @@
         </a>
     </li>
 
-    <hr class="sidebar-divider">
+    
+    
     <div class="sidebar-heading">
         Data Profil
     </div>
@@ -62,7 +62,8 @@
     
     {{-- Menu Akun: hanya untuk Super Admin --}}
     @hasrole('SUPERADMIN')
-    <hr class="sidebar-divider">
+   
+    
     <div class="sidebar-heading">
         Data Akun & Laporan
     </div>
@@ -84,7 +85,8 @@
         </li>
     @endhasanyrole
 
-    <hr class="sidebar-divider d-none d-md-block">
+    
+    
     <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
     </div>
