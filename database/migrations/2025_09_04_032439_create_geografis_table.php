@@ -13,7 +13,17 @@ return new class extends Migration
     {
         Schema::create('geografis', function (Blueprint $table) {
             $table->id();
-            $table->string('luas');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
+            // =======================================================
+            // VVV INI ADALAH PERBAIKANNYA VVV
+            $table->string('luas_wilayah')->nullable(); // Ganti 'luas' menjadi 'luas_wilayah'
+            // =======================================================
+
+            $table->string('batas_wilayah_utara')->nullable();
+            $table->string('batas_wilayah_selatan')->nullable();
+            $table->string('batas_wilayah_barat')->nullable();
+            $table->string('batas_wilayah_timur')->nullable();
             $table->timestamps();
         });
     }

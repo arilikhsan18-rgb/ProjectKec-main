@@ -1,20 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Data geografis')
+@section('title', 'Data Geografis')
 
 @section('content')
-    <h1 class="h3 mb-2 text-gray-800">Data geografis</h1>
-    <p class="mb-4">Berikut adalah data geografis yang telah diinput.</p>
+    <h1 class="h3 mb-2 text-gray-800">Data Geografis</h1>
+    <p class="mb-4">Berikut adalah data kondisi geografis yang telah diinput.</p>
 
-    {{-- Tombol Tambah Data, hanya muncul untuk role yang berhak --}}
     @hasanyrole('RT|KECAMATAN|SUPERADMIN')
     <div class="mb-3">
-        <a href="{{ route('geografis.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Tambah Data</a>
-        {{-- Tombol Cetak PDF, muncul untuk semua yang bisa melihat --}}
+        @if($geografis->isEmpty())
+            <a href="{{ route('geografis.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Tambah Data</a>
+        @endif
     </div>
     @endhasanyrole
 
-    {{-- Notifikasi Sukses --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
@@ -34,36 +33,35 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Luas</th>
-                            
-                            {{-- ======================================================= --}}
-                            {{-- VVV PERBAIKAN 1: TAMBAHKAN HEADER KOLOM INI VVV --}}
-                            {{-- Kolom ini hanya ditampilkan jika user BUKAN RT --}}
+                            <th>Luas Wilayah</th>
+                            <th>Batas Utara</th>
+                            <th>Batas Selatan</th>
+                            <th>Batas Barat</th>
+                            <th>Batas Timur</th>
                             @unlessrole('RT')
                             <th>Diinput Oleh</th>
                             @endunlessrole
-                            {{-- ======================================================= --}}
-                            
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($geografiss as $key => $geografis)
+                        {{-- ======================================================= --}}
+                        {{-- VVV PERBAIKAN: Gunakan '$geografis' (bukan '$geografiss') VVV --}}
+                        @forelse ($geografis as $key => $data)
                             <tr>
-                                <td>{{ $geografiss->firstItem() + $key }}</td>
-                                <td>{{ $geografis->luas }}</td>
-                                
-                                {{-- ======================================================= --}}
-                                {{-- VVV PERBAIKAN 2: TAMBAHKAN DATA KOLOM INI VVV --}}
+                                <td>{{ $geografis->firstItem() + $key }}</td>
+                                <td>{{ $data->luas_wilayah }}</td>
+                                <td>{{ $data->batas_wilayah_utara }}</td>
+                                <td>{{ $data->batas_wilayah_selatan }}</td>
+                                <td>{{ $data->batas_wilayah_barat }}</td>
+                                <td>{{ $data->batas_wilayah_timur }}</td>
                                 @unlessrole('RT')
-                                <td>{{ $geografis->user->name ?? 'N/A' }}</td>
+                                <td>{{ $data->user->name ?? 'N/A' }}</td>
                                 @endunlessrole
-                                {{-- ======================================================= --}}
-                                
                                 <td class="text-center">
                                     @hasanyrole('RT|KECAMATAN|SUPERADMIN')
-                                    <a href="{{ route('geografis.edit', $geografis->id) }}" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
-                                    <form action="{{ route('geografis.destroy', $geografis->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                                    <a href="{{ route('geografis.edit', $data->id) }}" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
+                                    <form action="{{ route('geografis.destroy', $data->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-danger btn-sm" title="Hapus"><i class="fa fa-trash"></i></button>
@@ -75,17 +73,14 @@
                             </tr>
                         @empty
                             <tr>
-                                {{-- Sesuaikan colspan agar pas dengan jumlah kolom --}}
-                                <td colspan="5" class="text-center">Data kosong.</td>
+                                <td colspan="{{ auth()->user()->hasRole('RT') ? '7' : '8' }}" class="text-center">Data kosong. Silakan tambah data.</td>
                             </tr>
                         @endforelse
                     </tbody>
-                    {{-- Tambahkan TFOOT untuk menampilkan total --}}
                 </table>
             </div>
-            {{-- Tambahkan link paginasi --}}
             <div class="mt-3">
-                {{ $geografiss->links() }}
+                {{ $geografis->links() }}
             </div>
         </div>
     </div>

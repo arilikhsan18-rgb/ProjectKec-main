@@ -51,7 +51,7 @@ class FasumController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fasum' => 'required|in:laki-laki,perempuan',
+            'nama' => 'required| max:100',
             'jumlah' => 'required|numeric|min:1',
         ]);
         $request->user()->fasums()->create($request->all());
@@ -66,7 +66,7 @@ class FasumController extends Controller
     public function update(Request $request, fasum $fasum)
     {
         $request->validate([
-            'fasum' => 'required|in:laki-laki,perempuan',
+            'nama' => 'required| max:100',
             'jumlah' => 'required|numeric|min:1',
         ]);
         $fasum->update($request->all());
