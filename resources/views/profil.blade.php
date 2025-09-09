@@ -15,6 +15,7 @@
     </div>
 
     {{-- FORMULIR FILTER BARU --}}
+    @hasanyrole('SUPERADMIN|KECAMATAN')
     <div class="card shadow mb-4">
         <div class="card-body">
             <form action="{{ route('profil') }}" method="GET">
@@ -60,6 +61,7 @@
             </form>
         </div>
     </div>
+    @endhasanyrole
     {{-- AKHIR FORMULIR FILTER --}}
 
     {{-- BARIS PERTAMA: Ringkasan Utama & Data LAMPID --}}
