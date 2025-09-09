@@ -33,9 +33,6 @@
                                 <tr>
                                     <td>Pindahan/Tetap</td><td>:</td><td class="font-weight-bold">{{ $jumlahPindahan ?? 0 }}/{{ $jumlahTetap ?? 0 }} Jiwa</td>
                                 </tr>
-                                <tr>
-                                    <td>Luas Wilayah</td><td>:</td><td class="font-weight-bold">{{ $luas ?? 0 }} h.a</td>
-                                </tr>
                             </table>
                         </div>
                         <div class="col-auto">
@@ -55,13 +52,13 @@
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">LAMPID (Tahun {{ date('Y') }})</div>
                             <table class="table table-sm table-borderless">
                                 <tr>
-                                    <td width="40%">Kelahiran</td><td width="5%">:</td><td class="font-weight-bold">{{ $lampid['Lahir'] ?? 0 }} Orang</td>
+                                    <td width="40%">Kelahiran</td><td width="5%">:</td><td class="font-weight-bold">{{ $lampid['kelahiran'] ?? 0 }} Orang</td>
                                 </tr>
                                 <tr>
-                                    <td>Kematian</td><td>:</td><td class="font-weight-bold">{{ $lampid['Mati'] ?? 0 }} Orang</td>
+                                    <td>Kematian</td><td>:</td><td class="font-weight-bold">{{ $lampid['kematian'] ?? 0 }} Orang</td>
                                 </tr>
                                 <tr>
-                                    <td>Warga Baru / Keluar</td><td>:</td><td class="font-weight-bold">{{ $lampid['Datang'] ?? 0 }} / {{ $lampid['Pindah'] ?? 0 }} Orang</td>
+                                    <td>Warga Keluar / Baru</td><td>:</td><td class="font-weight-bold">{{ $lampid['pindah'] ?? 0 }} / {{ $lampid['baru'] ?? 0 }} Orang</td>
                                 </tr>
                             </table>
                         </div>
@@ -72,6 +69,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
 
     {{-- BARIS KEDUA: Data Demografi & Sosial Ekonomi --}}
@@ -91,7 +89,8 @@
                                 <tr><td>Dewasa (19-55)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Dewasa'] ?? 0 }} Orang</td></tr>
                                 <tr><td>Lansia (56+)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Lansia'] ?? 0 }} Orang</td></tr>
                                 <tr><td colspan="3"><hr class="my-1"></td></tr>
-                                <tr><td>Laki-laki / Perempuan</td><td>:</td><td class="font-weight-bold">{{ $jumlahLaki ?? 0 }} / {{ $jumlahPerempuan ?? 0 }} Orang</td></tr>
+                                <tr><td>Laki-laki</td><td>:</td><td class="font-weight-bold">{{ $jumlahLaki ?? 0 }}  Orang</td></tr>
+                                <tr><td>Perempuan</td><td>:</td><td class="font-weight-bold">{{ $jumlahPerempuan ?? 0 }} Orang</td></tr>
                             </table>
                         </div>
                         <div class="col-auto">
@@ -105,25 +104,51 @@
         <!-- Kartu Pendidikan & Pekerjaan -->
         <div class="col-lg-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pendidikan & Pekerjaan</div>
-                            <table class="table table-sm table-borderless">
-                                <tr><td width="40%">Masih Sekolah</td><td width="5%">:</td><td class="font-weight-bold">{{ $pendidikan['Masih Sekolah'] ?? 0 }} Orang</td></tr>
-                                <tr><td>Putus Sekolah</td><td>:</td><td class="font-weight-bold">{{ $pendidikan['Putus Sekolah'] ?? 0 }} Orang</td></tr>
-                                <tr><td colspan="3"><hr class="my-1"></td></tr>
-                                <tr><td>Bekerja</td><td>:</td><td class="font-weight-bold">{{ $pekerjaan['Bekerja'] ?? 0 }} Orang</td></tr>
-                                <tr><td>Tidak Bekerja</td><td>:</td><td class="font-weight-bold">{{ $pekerjaan['Tidak Bekerja'] ?? 0 }} Orang</td></tr>
-                            </table>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-briefcase fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+            <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pendidikan & Pekerjaan</div>
+                    <table class="table table-sm table-borderless">
+                        {{-- Data Pendidikan dengan kunci huruf kecil --}}
+                        <tr>
+                            <td width="40%">Belum Sekolah</td>
+                            <td width="5%">:</td>
+                            <td class="font-weight-bold">{{ $masihsekolah ?? 0 }} Orang</td>
+                        </tr>
+                        <tr>
+                            <td width="40%">Masih Sekolah</td>
+                            <td width="5%">:</td>
+                            <td class="font-weight-bold">{{ $belumsekolah ?? 0 }} Orang</td>
+                        </tr>
+                        <tr>
+                            <td>Putus Sekolah</td>
+                            <td>:</td>
+                            <td class="font-weight-bold">{{ $putussekolah ?? 0 }} Orang</td>
+                        </tr>
+                        
+                        <tr><td colspan="3"><hr class="my-1"></td></tr>
+                        
+                        {{-- Data Pekerjaan dengan kunci huruf kecil --}}
+                        <tr>
+                            <td>Bekerja</td>
+                            <td>:</td>
+                            <td class="font-weight-bold">{{ $bekerja ?? 0 }} Orang</td>
+                        </tr>
+                        <tr>
+                            <td>Tidak Bekerja</td>
+                            <td>:</td>
+                            <td class="font-weight-bold">{{ $tidakbekerja ?? 0 }} Orang</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-briefcase fa-2x text-gray-300"></i>
                 </div>
             </div>
         </div>
+        </div>
+</div>
+
     </div>
 
     {{-- BARIS KETIGA: Infrastruktur & Fasilitas Umum (Data Statis) --}}

@@ -51,7 +51,7 @@ class LampidController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'status' => 'required|in:lahir,meninggal,pindah,datang',
+            'status' => 'required|in:kelahiran,kematian,pindah,baru',
             'jumlah' => 'required|numeric|min:1',
         ]);
         $request->user()->lampids()->create($request->all());
@@ -66,7 +66,7 @@ class LampidController extends Controller
     public function update(Request $request, Lampid $lampid)
     {
         $request->validate([
-            'status' => 'required|in:lahir,meninggal,pindah,datang',
+            'status' => 'required|in:kelahiran,kematian,pindah,baru',
             'jumlah' => 'required|numeric|min:1',
         ]);
         $lampid->update($request->all());

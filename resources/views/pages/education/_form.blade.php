@@ -4,7 +4,7 @@
     <select name="sekolah" id="sekolah" class="form-control @error('sekolah') is-invalid @enderror">
         <option value="">-- Pilih Status --</option>
         <option value="masih sekolah" {{ old('sekolah', $education->sekolah ?? '') == 'masih sekolah' ? 'selected' : '' }}>Masih Sekolah</option>
-        <option value="tidak sekolah" {{ old('sekolah', $education->sekolah ?? '') == 'tidak sekolah' ? 'selected' : '' }}>Tidak Sekolah</option>
+        <option value="belum sekolah" {{ old('sekolah', $education->sekolah ?? '') == 'belum sekolah' ? 'selected' : '' }}>belum Sekolah</option>
         <option value="putus sekolah" {{ old('sekolah', $education->sekolah ?? '') == 'putus sekolah' ? 'selected' : '' }}>Putus Sekolah</option>
     </select>
     @error('sekolah')

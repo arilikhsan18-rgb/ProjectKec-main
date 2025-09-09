@@ -52,7 +52,7 @@
                         @forelse ($genders as $key => $gender)
                             <tr>
                                 <td>{{ $genders->firstItem() + $key }}</td>
-                                <td>{{ $gender->status_tinggal }}</td>
+                                <td>{{ $gender->gender }}</td>
                                 <td>{{ number_format($gender->jumlah, 0, ',', '.') }}</td>
                                 
                                 {{-- ======================================================= --}}

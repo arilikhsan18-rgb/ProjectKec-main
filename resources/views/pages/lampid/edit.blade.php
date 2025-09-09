@@ -18,10 +18,10 @@
                     <label for="status">Status</label>
                     <select class="form-control @error('status') is-invalid @enderror" id="status" name="status" required>
                         <option value="">-- Pilih Status --</option>
-                        <option value="lahir" {{ old('status', $lampid->status) == 'lahir' ? 'selected' : '' }}>Lahir</option>
-                        <option value="meninggal" {{ old('status', $lampid->status) == 'meninggal' ? 'selected' : '' }}>Meninggal</option>
-                        <option value="pindah" {{ old('status', $lampid->status) == 'pindah' ? 'selected' : '' }}>Pindah</option>
-                        <option value="datang" {{ old('status', $lampid->status) == 'datang' ? 'selected' : '' }}>Datang</option>
+                        <option value="kelahiran" {{ old('status', $lampid->status) == 'kelahiran' ? 'selected' : '' }}>kelahiran</option>
+                        <option value="kematian" {{ old('status', $lampid->status) == 'kematian' ? 'selected' : '' }}>kematian</option>
+                        <option value="pindah" {{ old('status', $lampid->status) == 'pindah' ? 'selected' : '' }}> Warga Pindah</option>
+                        <option value="baru" {{ old('status', $lampid->status) == 'baru' ? 'selected' : '' }}>Warga baru</option>
                     </select>
                     @error('status')
                         <div class="invalid-feedback">{{ $message }}</div>

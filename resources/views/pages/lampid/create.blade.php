@@ -17,10 +17,10 @@
                     <label for="status">Status</label>
                     <select class="form-control @error('status') is-invalid @enderror" id="status" name="status" required>
                         <option value="">-- Pilih Status --</option>
-                        <option value="lahir" {{ old('status') == 'lahir' ? 'selected' : '' }}>Lahir</option>
-                        <option value="meninggal" {{ old('status') == 'meninggal' ? 'selected' : '' }}>Meninggal</option>
-                        <option value="pindah" {{ old('status') == 'pindah' ? 'selected' : '' }}>Pindah</option>
-                        <option value="datang" {{ old('status') == 'datang' ? 'selected' : '' }}>Datang</option>
+                        <option value="kelahiran" {{ old('status') == 'kelahiran' ? 'selected' : '' }}>Kelahiran</option>
+                        <option value="kematian" {{ old('status') == 'kematian' ? 'selected' : '' }}>Kematian</option>
+                        <option value="pindah" {{ old('status') == 'pindah' ? 'selected' : '' }}>Warga Pindah</option>
+                        <option value="baru" {{ old('status') == 'baru' ? 'selected' : '' }}>Warga Baru</option>
                     </select>
                     @error('status')
                         <div class="invalid-feedback">{{ $message }}</div>

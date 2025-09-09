@@ -10,4 +10,9 @@ class Lampid extends Model
         'status',
         'jumlah',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

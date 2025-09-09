@@ -9,7 +9,7 @@
 
             {{-- Bagian Kanan: Versi Aplikasi (Praktik yang Baik) --}}
             <span class="text-right d-none d-sm-inline-block">
-                Versi {{ env('APP_VERSION', '1.0.0') }}
+                Versi {{ env('APP_VERSION', '1.9.0') }}
             </span>
 
         </div>

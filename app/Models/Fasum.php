@@ -10,4 +10,9 @@ class Fasum extends Model
         'nama',
         'jumlah'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

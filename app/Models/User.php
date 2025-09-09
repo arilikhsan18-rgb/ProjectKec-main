@@ -88,5 +88,26 @@ class User extends Authenticatable
     {
         return $this->hasMany(Occupation::class);
     }
+
+     public function lampids()
+    {
+        // Pastikan Anda sudah punya Model Lampid
+        return $this->hasMany(Lampid::class);
+    }
+
+    public function fasums()
+    {
+        return $this->hasmany(Fasum::class);
+    }
+
+    public function geografiss()
+    {
+        return $this->hasmany(Geografis::class);
+    }
+
+    public function Genders()
+    {
+        return $this->hasmany(Gender::class);
+    }
 }
 
