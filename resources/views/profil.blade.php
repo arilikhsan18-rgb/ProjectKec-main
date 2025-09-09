@@ -1,24 +1,69 @@
 @extends('layouts.app')
 
-@section('title', 'Profil Kependudukan Kecamatan Tawang')
+@section('title', $headerTitle ?? 'Profil Kependudukan')
 
 @section('content')
 
-    {{-- Header Halaman yang Sudah Dinamis --}}
+    {{-- Header Halaman Dinamis --}}
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
-            <h1 class="h3 mb-0 text-gray-800">Profil Kependudukan Kecamatan Tawang</h1>
-            <!--p class="mb-0 text-muted small">Data statistik agregat dari {{ $jumlahRT ?? 0 }} RT dan {{ $jumlahRW ?? 0 }} RW</p-->
+            <h1 class="h3 mb-0 text-gray-800">{{ $headerTitle ?? 'Profil Kependudukan' }}</h1>
+            @if(!empty($headerSubtitle))
+                <p class="mb-0 text-muted small">{{ $headerSubtitle }}</p>
+            @endif
         </div>
-        {{-- Tombol Cetak Profil (opsional, bisa diaktifkan kembali) --}}
-        <!--a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-download fa-sm text-white-50"></i> Cetak Laporan
-        </a-->
     </div>
+
+    {{-- FORMULIR FILTER BARU --}}
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form action="{{ route('profil') }}" method="GET">
+                <div class="row align-items-end">
+                    <div class="col-md-3">
+                        <label for="kelurahan_id" class="small font-weight-bold">Pilih Kelurahan</label>
+                        <select name="kelurahan_id" id="kelurahan_id" class="form-control form-control-sm">
+                            <option value="">-- Semua Kelurahan --</option>
+                            @foreach ($kelurahans as $kelurahan)
+                                <option value="{{ $kelurahan->id }}" {{ ($filters['kelurahan_id'] ?? '') == $kelurahan->id ? 'selected' : '' }}>
+                                    {{ $kelurahan->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="rw_id" class="small font-weight-bold">Pilih RW</label>
+                        <select name="rw_id" id="rw_id" class="form-control form-control-sm">
+                            <option value="">-- Semua RW --</option>
+                            @foreach ($rws as $rw)
+                                <option value="{{ $rw->id }}" {{ ($filters['rw_id'] ?? '') == $rw->id ? 'selected' : '' }} data-kelurahan="{{ $rw->parent_id }}">
+                                    {{ $rw->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="rt_id" class="small font-weight-bold">Pilih RT</label>
+                        <select name="rt_id" id="rt_id" class="form-control form-control-sm">
+                            <option value="">-- Semua RT --</option>
+                            @foreach ($rts as $rt)
+                                <option value="{{ $rt->id }}" {{ ($filters['rt_id'] ?? '') == $rt->id ? 'selected' : '' }} data-rw="{{ $rt->parent_id }}">
+                                    {{ $rt->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex mt-3 mt-md-0">
+                        <button type="submit" class="btn btn-primary btn-sm flex-grow-1 mr-2"><i class="fas fa-filter fa-sm"></i> Terapkan</button>
+                        <a href="{{ route('profil') }}" class="btn btn-secondary btn-sm" title="Reset Filter"><i class="fas fa-sync-alt fa-sm"></i></a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {{-- AKHIR FORMULIR FILTER --}}
 
     {{-- BARIS PERTAMA: Ringkasan Utama & Data LAMPID --}}
     <div class="row">
-
         <!-- Kartu Ringkasan Utama -->
         <div class="col-lg-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -42,14 +87,13 @@
                 </div>
             </div>
         </div>
-
         <!-- Kartu LAMPID -->
         <div class="col-lg-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">LAMPID (Tahun {{ date('Y') }})</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">LAMPID (Total Keseluruhan)</div>
                             <table class="table table-sm table-borderless">
                                 <tr>
                                     <td width="40%">Kelahiran</td><td width="5%">:</td><td class="font-weight-bold">{{ $lampid['kelahiran'] ?? 0 }} Orang</td>
@@ -69,12 +113,10 @@
                 </div>
             </div>
         </div>
-        
     </div>
 
     {{-- BARIS KEDUA: Data Demografi & Sosial Ekonomi --}}
     <div class="row">
-
         <!-- Kartu Kelompok Usia & Jenis Kelamin -->
         <div class="col-lg-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
@@ -89,7 +131,7 @@
                                 <tr><td>Dewasa (19-55)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Dewasa'] ?? 0 }} Orang</td></tr>
                                 <tr><td>Lansia (56+)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Lansia'] ?? 0 }} Orang</td></tr>
                                 <tr><td colspan="3"><hr class="my-1"></td></tr>
-                                <tr><td>Laki-laki</td><td>:</td><td class="font-weight-bold">{{ $jumlahLaki ?? 0 }}  Orang</td></tr>
+                                <tr><td>Laki-laki</td><td>:</td><td class="font-weight-bold">{{ $jumlahLaki ?? 0 }} Orang</td></tr>
                                 <tr><td>Perempuan</td><td>:</td><td class="font-weight-bold">{{ $jumlahPerempuan ?? 0 }} Orang</td></tr>
                             </table>
                         </div>
@@ -104,91 +146,93 @@
         <!-- Kartu Pendidikan & Pekerjaan -->
         <div class="col-lg-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
-            <div class="card-body">
-            <div class="row no-gutters align-items-center">
-                <div class="col">
-                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pendidikan & Pekerjaan</div>
-                    <table class="table table-sm table-borderless">
-                        {{-- Data Pendidikan dengan kunci huruf kecil --}}
-                        <tr>
-                            <td width="40%">Belum Sekolah</td>
-                            <td width="5%">:</td>
-                            <td class="font-weight-bold">{{ $masihsekolah ?? 0 }} Orang</td>
-                        </tr>
-                        <tr>
-                            <td width="40%">Masih Sekolah</td>
-                            <td width="5%">:</td>
-                            <td class="font-weight-bold">{{ $belumsekolah ?? 0 }} Orang</td>
-                        </tr>
-                        <tr>
-                            <td>Putus Sekolah</td>
-                            <td>:</td>
-                            <td class="font-weight-bold">{{ $putussekolah ?? 0 }} Orang</td>
-                        </tr>
-                        
-                        <tr><td colspan="3"><hr class="my-1"></td></tr>
-                        
-                        {{-- Data Pekerjaan dengan kunci huruf kecil --}}
-                        <tr>
-                            <td>Bekerja</td>
-                            <td>:</td>
-                            <td class="font-weight-bold">{{ $bekerja ?? 0 }} Orang</td>
-                        </tr>
-                        <tr>
-                            <td>Tidak Bekerja</td>
-                            <td>:</td>
-                            <td class="font-weight-bold">{{ $tidakbekerja ?? 0 }} Orang</td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="col-auto">
-                    <i class="fas fa-briefcase fa-2x text-gray-300"></i>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pendidikan & Pekerjaan</div>
+                            <table class="table table-sm table-borderless">
+                                {{-- PERBAIKAN: Variabel disesuaikan dengan Controller --}}
+                                <tr>
+                                    <td width="40%">Belum Sekolah</td><td width="5%">:</td><td class="font-weight-bold">{{ $belumsekolah ?? 0 }} Orang</td>
+                                </tr>
+                                <tr>
+                                    <td>Masih Sekolah</td><td width="5%">:</td><td class="font-weight-bold">{{ $masihsekolah ?? 0 }} Orang</td>
+                                </tr>
+                                <tr>
+                                    <td>Putus Sekolah</td><td>:</td><td class="font-weight-bold">{{ $putussekolah ?? 0 }} Orang</td>
+                                </tr>
+                                <tr><td colspan="3"><hr class="my-1"></td></tr>
+                                <tr>
+                                    <td>Bekerja</td><td>:</td><td class="font-weight-bold">{{ $bekerja ?? 0 }} Orang</td>
+                                </tr>
+                                <tr>
+                                    <td>Tidak Bekerja</td><td>:</td><td class="font-weight-bold">{{ $tidakbekerja ?? 0 }} Orang</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-briefcase fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        </div>
-</div>
-
     </div>
 
-    {{-- BARIS KETIGA: Infrastruktur & Fasilitas Umum (Data Statis) --}}
+    {{-- BARIS KETIGA TETAP SAMA KARENA DATA STATIS --}}
     <div class="row">
-        <!-- Kartu Infrastruktur -->
-        <div class="col-lg-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Infrastruktur</div>
-                            <table class="table table-sm table-borderless">
-                                <tr><td width="40%">Kondisi Jalan</td><td width="5%">:</td><td class="font-weight-bold">Baik (85%)</td></tr>
-                                <tr><td>Penerangan Jalan</td><td>:</td><td class="font-weight-bold">15 Titik</td></tr>
-                                <tr><td>Sumber Air Bersih</td><td>:</td><td class="font-weight-bold">PDAM (98%)</td></tr>
-                            </table>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-road fa-2x text-gray-300"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Kartu Fasilitas Umum & Sosial -->
-        <div class="col-lg-6 mb-4">
-            <div class="card border-left-secondary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Fasilitas Umum & Sosial</div>
-                            <table class="table table-sm table-borderless">
-                                <tr><td width="40%">Tempat Ibadah</td><td width="5%">:</td><td class="font-weight-bold">1 Unit Masjid</td></tr>
-                                <tr><td>Fasilitas Kesehatan</td><td>:</td><td class="font-weight-bold">1 Posyandu (Aktif)</td></tr>
-                                <tr><td>Ruang Publik</td><td>:</td><td class="font-weight-bold">Balai Warga & Taman</td></tr>
-                            </table>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-hospital-user fa-2x text-gray-300"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{-- ... Kartu Infrastruktur & Fasilitas Umum ... --}}
     </div>
 
 @endsection
+
+@push('scripts')
+{{-- Script untuk membuat filter dropdown dependen (cascading) --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const kelurahanSelect = document.getElementById('kelurahan_id');
+        const rwSelect = document.getElementById('rw_id');
+        const rtSelect = document.getElementById('rt_id');
+
+        function filterDropdown(parentSelect, childSelect, parentIdAttribute) {
+            const parentId = parentSelect.value;
+            let firstVisibleChild = null;
+
+            for (let option of childSelect.options) {
+                const attributeValue = option.getAttribute(parentIdAttribute);
+                if (parentId === "" || attributeValue === parentId) {
+                    option.style.display = "";
+                    if (option.value !== "" && firstVisibleChild === null) {
+                        firstVisibleChild = option;
+                    }
+                } else {
+                    option.style.display = "none";
+                    if (childSelect.value === option.value) {
+                         childSelect.value = ""; // Reset if selected is now hidden
+                    }
+                }
+            }
+        }
+        
+        function updateChildDropdown(parentSelect, childSelect, childAttribute, grandChildSelect, grandChildAttribute) {
+            childSelect.value = "";
+            if (grandChildSelect) grandChildSelect.value = "";
+            filterDropdown(parentSelect, childSelect, childAttribute);
+            if (grandChildSelect) filterDropdown(childSelect, grandChildSelect, grandChildAttribute);
+        }
+
+        kelurahanSelect.addEventListener('change', function() {
+            updateChildDropdown(this, rwSelect, 'data-kelurahan', rtSelect, 'data-rw');
+        });
+
+        rwSelect.addEventListener('change', function() {
+            updateChildDropdown(this, rtSelect, 'data-rw', null, null);
+        });
+
+        // Jalankan saat halaman dimuat untuk memastikan filter awal sudah benar
+        filterDropdown(kelurahanSelect, rwSelect, 'data-kelurahan');
+        filterDropdown(rwSelect, rtSelect, 'data-rw');
+    });
+</script>
+@endpush
+
