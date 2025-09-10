@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html lang="id"> {{-- REVISI 1: Bahasa diubah ke 'id' untuk SEO & Aksesibilitas --}}
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    {{-- REVISI 2: Meta tags diisi untuk informasi yang lebih baik --}}
     <meta name="description" content="Sistem Informasi Kependudukan Kecamatan Tawang">
     <meta name="author" content="Tim Pengembang SIDAKEP">
 
-    {{-- REVISI 3: Judul halaman dibuat dinamis --}}
     <title>@yield('title', 'Dashboard') | SIDAKEP</title>
 
     <link rel="icon" href="{{ asset('img/tsk.png') }}" type="image/png">
@@ -17,7 +15,6 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="{{ asset('template/css/sb-admin-2.min.css')}}" rel="stylesheet">
     
-    {{-- Stack untuk CSS spesifik per halaman jika diperlukan --}}
     @stack('styles')
 </head>
 
@@ -25,20 +22,16 @@
 
     <div id="wrapper">
 
-        {{-- REVISI 4: Path include diseragamkan ke folder 'partials' --}}
         @include('layouts.partials.sidebar')
 
         <div id="content-wrapper" class="d-flex flex-column">
 
+            @include('layouts.partials.topbar')
+
             <div id="content">
-
-                @include('layouts.partials.topbar')
-
-                <div class="container-fluid">
-                    {{-- Di sinilah konten dari halaman lain akan disuntikkan --}}
+                <div class="container-fluid pt-4"> {{-- Menambah padding top agar konten tidak terlalu mepet navbar --}}
                     @yield('content')
                 </div>
-
             </div>
 
             @include('layouts.partials.footer')
@@ -51,7 +44,7 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    {{-- Modal Logout (Sudah diperbaiki) --}}
+    {{-- Modal Logout --}}
     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -63,7 +56,6 @@
                 </div>
                 <div class="modal-body">Apakah Anda yakin akan keluar dari aplikasi?</div>
                 <div class="modal-footer">
-                    {{-- REVISI 5 (PALING KRITIS): Form Logout diperbaiki --}}
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Kembali</button>
@@ -83,25 +75,48 @@
     {{-- Script untuk Chart (opsional) --}}
     <script src="{{ asset('template/vendor/chart.js/Chart.min.js')}}"></script>
     
-    
-    {{-- Stack untuk script spesifik per halaman --}}
     @stack('scripts')
 
     <style>
-        /* CSS BARU UNTUK MEMPERCANTIK HEADER BAGIAN DALAM TABEL */
-.data-table .table-section-header td {
-    background-color: #f8f9fc; /* Warna latar abu-abu terang, sesuai tema */
-    font-weight: 600;
-    color: #4e73df; /* Warna biru primer dari tema */
-    border-top: 2px solid #4e73df; /* Garis aksen biru di atas */
-    font-size: 1rem;
-}
+        .data-table .table-section-header td {
+            background-color: #f8f9fc;
+            font-weight: 600;
+            color: #4e73df;
+            border-top: 2px solid #4e73df;
+            font-size: 1rem;
+        }
 
-.data-table .fas {
-    margin-right: 10px; /* Jarak antara ikon dan teks */
-    width: 20px; /* Agar ikon rapi sejajar */
-    text-align: center;
-}
+        .data-table .fas {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ======================================================= */
+        /* VVV CSS YANG DIPERKUAT UNTUK LAYOUT VVV */
+        /* ======================================================= */
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #wrapper {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        #content-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            height: 100vh;
+        }
+
+        #content {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
     </style>
 </body>
 

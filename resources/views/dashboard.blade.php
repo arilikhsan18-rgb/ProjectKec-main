@@ -14,11 +14,13 @@
         @endhasanyrole
     </div>
 
-    <!-- Pesan Selamat Datang -->
-    <div class="alert alert-info shadow">
-        {{-- Menggunakan ?? 'Tamu' sebagai fallback jika variabel tidak ada --}}
+    <!-- Pesan Selamat Datang (BISA DITUTUP) -->
+    <div class="alert alert-info shadow alert-dismissible fade show" role="alert">
         <h4 class="alert-heading">Selamat Datang, {{ $namaUser ?? 'Pengguna' }}!</h4>
         <p>Anda login sebagai **{{ $roleUser ?? 'Tidak Dikenal' }}**. Semua data yang ditampilkan di bawah ini telah disesuaikan dengan hak akses dan wilayah Anda.</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 
     <!-- Baris untuk Kartu Statistik (KPI) -->
@@ -199,4 +201,3 @@ var myPieChartKependudukan = new Chart(ctxKependudukan, {
 
 </script>
 @endpush
-

@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    {{-- FORMULIR FILTER BARU --}}
+    {{-- FORMULIR FILTER --}}
     @hasanyrole('SUPERADMIN|KECAMATAN')
     <div class="card shadow mb-4">
         <div class="card-body">
@@ -62,7 +62,6 @@
         </div>
     </div>
     @endhasanyrole
-    {{-- AKHIR FORMULIR FILTER --}}
 
     {{-- BARIS PERTAMA: Ringkasan Utama & Data LAMPID --}}
     <div class="row">
@@ -73,13 +72,15 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Ringkasan Utama</div>
-                            <table class="table table-sm table-borderless">
-                                <tr>
-                                    <td width="40%">Total Warga</td><td width="5%">:</td><td class="font-weight-bold">{{ $totalWarga ?? 0 }} Jiwa</td>
-                                </tr>
-                                <tr>
-                                    <td>Pindahan/Tetap</td><td>:</td><td class="font-weight-bold">{{ $jumlahPindahan ?? 0 }}/{{ $jumlahTetap ?? 0 }} Jiwa</td>
-                                </tr>
+                            <table class="table table-sm table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td width="40%">Total Warga</td><td width="5%">:</td><td class="font-weight-bold">{{ $totalWarga ?? 0 }} Jiwa</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pindahan / Tetap</td><td>:</td><td class="font-weight-bold">{{ $jumlahPindahan ?? 0 }} / {{ $jumlahTetap ?? 0 }} Jiwa</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                         <div class="col-auto">
@@ -95,17 +96,20 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">LAMPID (Total Keseluruhan)</div>
-                            <table class="table table-sm table-borderless">
-                                <tr>
-                                    <td width="40%">Kelahiran</td><td width="5%">:</td><td class="font-weight-bold">{{ $lampid['kelahiran'] ?? 0 }} Orang</td>
-                                </tr>
-                                <tr>
-                                    <td>Kematian</td><td>:</td><td class="font-weight-bold">{{ $lampid['kematian'] ?? 0 }} Orang</td>
-                                </tr>
-                                <tr>
-                                    <td>Warga Keluar / Baru</td><td>:</td><td class="font-weight-bold">{{ $lampid['pindah'] ?? 0 }} / {{ $lampid['baru'] ?? 0 }} Orang</td>
-                                </tr>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">LAMPID (Laporan Kependudukan)</div>
+                            <table class="table table-sm table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td width="40%">Kelahiran</td><td width="5%">:</td><td class="font-weight-bold">{{ $lampid['kelahiran'] ?? 0 }} Orang</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kematian</td><td>:</td><td class="font-weight-bold">{{ $lampid['kematian'] ?? 0 }} Orang</td>
+                                    </tr>
+                                    <tr>
+                                        {{-- PERBAIKAN: Menggunakan 'datang' sesuai controller --}}
+                                        <td>Pindah / Datang</td><td>:</td><td class="font-weight-bold">{{ $lampid['pindah'] ?? 0 }} / {{ $lampid['datang'] ?? 0 }} Orang</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                         <div class="col-auto">
@@ -126,15 +130,17 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Kelompok Usia & Jenis Kelamin</div>
-                            <table class="table table-sm table-borderless">
-                                <tr><td width="40%">Balita (0-5)</td><td width="5%">:</td><td class="font-weight-bold">{{ $kelompokUsia['Balita'] ?? 0 }} Orang</td></tr>
-                                <tr><td>Anak (6-12)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Anak'] ?? 0 }} Orang</td></tr>
-                                <tr><td>Remaja (13-18)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Remaja'] ?? 0 }} Orang</td></tr>
-                                <tr><td>Dewasa (19-55)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Dewasa'] ?? 0 }} Orang</td></tr>
-                                <tr><td>Lansia (56+)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Lansia'] ?? 0 }} Orang</td></tr>
-                                <tr><td colspan="3"><hr class="my-1"></td></tr>
-                                <tr><td>Laki-laki</td><td>:</td><td class="font-weight-bold">{{ $jumlahLaki ?? 0 }} Orang</td></tr>
-                                <tr><td>Perempuan</td><td>:</td><td class="font-weight-bold">{{ $jumlahPerempuan ?? 0 }} Orang</td></tr>
+                            <table class="table table-sm table-borderless mb-0">
+                                <tbody>
+                                    <tr><td width="40%">Balita (0-5)</td><td width="5%">:</td><td class="font-weight-bold">{{ $kelompokUsia['Balita'] ?? 0 }} Orang</td></tr>
+                                    <tr><td>Anak (6-12)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Anak'] ?? 0 }} Orang</td></tr>
+                                    <tr><td>Remaja (13-18)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Remaja'] ?? 0 }} Orang</td></tr>
+                                    <tr><td>Dewasa (19-55)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Dewasa'] ?? 0 }} Orang</td></tr>
+                                    <tr><td>Lansia (56+)</td><td>:</td><td class="font-weight-bold">{{ $kelompokUsia['Lansia'] ?? 0 }} Orang</td></tr>
+                                    <tr><td colspan="3"><hr class="my-1"></td></tr>
+                                    <tr><td>Laki-laki</td><td>:</td><td class="font-weight-bold">{{ $jumlahLaki ?? 0 }} Orang</td></tr>
+                                    <tr><td>Perempuan</td><td>:</td><td class="font-weight-bold">{{ $jumlahPerempuan ?? 0 }} Orang</td></tr>
+                                </tbody>
                             </table>
                         </div>
                         <div class="col-auto">
@@ -152,24 +158,17 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pendidikan & Pekerjaan</div>
-                            <table class="table table-sm table-borderless">
-                                {{-- PERBAIKAN: Variabel disesuaikan dengan Controller --}}
-                                <tr>
-                                    <td width="40%">Belum Sekolah</td><td width="5%">:</td><td class="font-weight-bold">{{ $belumsekolah ?? 0 }} Orang</td>
-                                </tr>
-                                <tr>
-                                    <td>Masih Sekolah</td><td width="5%">:</td><td class="font-weight-bold">{{ $masihsekolah ?? 0 }} Orang</td>
-                                </tr>
-                                <tr>
-                                    <td>Putus Sekolah</td><td>:</td><td class="font-weight-bold">{{ $putussekolah ?? 0 }} Orang</td>
-                                </tr>
-                                <tr><td colspan="3"><hr class="my-1"></td></tr>
-                                <tr>
-                                    <td>Bekerja</td><td>:</td><td class="font-weight-bold">{{ $bekerja ?? 0 }} Orang</td>
-                                </tr>
-                                <tr>
-                                    <td>Tidak Bekerja</td><td>:</td><td class="font-weight-bold">{{ $tidakbekerja ?? 0 }} Orang</td>
-                                </tr>
+                            <table class="table table-sm table-borderless mb-0">
+                                <tbody>
+                                    <tr><td width="40%">Belum Sekolah</td><td width="5%">:</td><td class="font-weight-bold">{{ $belumsekolah ?? 0 }} Orang</td></tr>
+                                    <tr><td>Masih Sekolah</td><td>:</td><td class="font-weight-bold">{{ $masihsekolah ?? 0 }} Orang</td></tr>
+                                    <tr><td>Putus Sekolah</td><td>:</td><td class="font-weight-bold">{{ $putussekolah ?? 0 }} Orang</td></tr>
+                                    <tr><td colspan="3"><hr class="my-1"></td></tr>
+                                    <tr><td>Bekerja</td><td>:</td><td class="font-weight-bold">{{ $bekerja ?? 0 }} Orang</td></tr>
+                                    <tr><td>Tidak Bekerja</td><td>:</td><td class="font-weight-bold">{{ $tidakbekerja ?? 0 }} Orang</td></tr>
+                                    {{-- TAMBAHAN: Menampilkan data 'usaha' --}}
+                                    <tr><td>Usaha</td><td>:</td><td class="font-weight-bold">{{ $usaha ?? 0 }} Orang</td></tr>
+                                </tbody>
                             </table>
                         </div>
                         <div class="col-auto">
@@ -180,12 +179,6 @@
             </div>
         </div>
     </div>
-
-    {{-- BARIS KETIGA TETAP SAMA KARENA DATA STATIS --}}
-    <div class="row">
-        {{-- ... Kartu Infrastruktur & Fasilitas Umum ... --}}
-    </div>
-
 @endsection
 
 @push('scripts')
@@ -197,38 +190,37 @@
         const rtSelect = document.getElementById('rt_id');
 
         function filterDropdown(parentSelect, childSelect, parentIdAttribute) {
+            if (!parentSelect || !childSelect) return;
             const parentId = parentSelect.value;
-            let firstVisibleChild = null;
 
             for (let option of childSelect.options) {
+                if (option.value === "") continue;
                 const attributeValue = option.getAttribute(parentIdAttribute);
                 if (parentId === "" || attributeValue === parentId) {
-                    option.style.display = "";
-                    if (option.value !== "" && firstVisibleChild === null) {
-                        firstVisibleChild = option;
-                    }
+                    option.style.display = "block";
                 } else {
                     option.style.display = "none";
-                    if (childSelect.value === option.value) {
-                         childSelect.value = ""; // Reset if selected is now hidden
-                    }
                 }
             }
         }
         
-        function updateChildDropdown(parentSelect, childSelect, childAttribute, grandChildSelect, grandChildAttribute) {
-            childSelect.value = "";
-            if (grandChildSelect) grandChildSelect.value = "";
-            filterDropdown(parentSelect, childSelect, childAttribute);
-            if (grandChildSelect) filterDropdown(childSelect, grandChildSelect, grandChildAttribute);
+        function resetAndFilter(parentSelect, childSelect, childAttribute, grandChildSelect = null, grandChildAttribute = null) {
+            if (childSelect) {
+                childSelect.value = "";
+                filterDropdown(parentSelect, childSelect, childAttribute);
+            }
+            if (grandChildSelect) {
+                grandChildSelect.value = "";
+                filterDropdown(childSelect, grandChildSelect, grandChildAttribute);
+            }
         }
 
         kelurahanSelect.addEventListener('change', function() {
-            updateChildDropdown(this, rwSelect, 'data-kelurahan', rtSelect, 'data-rw');
+            resetAndFilter(this, rwSelect, 'data-kelurahan', rtSelect, 'data-rw');
         });
 
         rwSelect.addEventListener('change', function() {
-            updateChildDropdown(this, rtSelect, 'data-rw', null, null);
+            resetAndFilter(this, rtSelect, 'data-rw');
         });
 
         // Jalankan saat halaman dimuat untuk memastikan filter awal sudah benar
@@ -237,4 +229,3 @@
     });
 </script>
 @endpush
-
