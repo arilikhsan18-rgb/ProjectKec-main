@@ -48,7 +48,6 @@
                     <h6 class="collapse-header">Pilih Data:</h6>
                     <a class="collapse-item" href="{{ route('geografis.index') }}">Geografis</a>
                     <a class="collapse-item" href="{{ route('fasum.index') }}">Fasilitas Umum</a>
-                    <a class="collapse-item" href="{{ route('penduduk.year') }}">Tahun Kelahiran</a>
                     <a class="collapse-item" href="{{ route('infrastruktur.index') }}">Infrastrukur</a>
                     <a class="collapse-item" href="{{ route('penduduk.index') }}">Penduduk</a>
                 </div>
