@@ -8,6 +8,7 @@ use App\Http\Controllers\GenderController;
 use App\Http\Controllers\LampidController;
 use App\Http\Controllers\GeografisController;
 use App\Http\Controllers\FasumController;
+use App\Http\Controllers\PendudukController;
 use App\Http\Controllers\InfrastrukturController;
 use App\Http\Controllers\InventarisController;
 use App\Http\Controllers\OccupationController;
@@ -51,6 +52,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/infrastruktur/cetak', [InfrastrukturController::class, 'printPDF'])->name('infrastruktur.cetak');
     Route::get('/room/cetak', [RoomController::class, 'printPDF'])->name('room.cetak');
 
+    // --DATA LAIN LAIN
+    Route::middleware(['auth'])->group(function () {
+    // Route baru untuk halaman filter tahun
+    Route::get('penduduk/year', [PendudukController::class, 'year'])->name('penduduk.year');
+    
+    // Route resource Anda yang sudah ada
+    Route::resource('penduduk', PendudukController::class);
+    });
+
+
     // --- DATA  PROFIL (Hak akses diatur di dalam Controller) ---
     Route::resource('resident', ResidentController::class);
     Route::resource('year', YearController::class);
@@ -60,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('lampid', LampidController::class);
     Route::resource('fasum', FasumController::class);
     Route::resource('geografis', GeografisController::class);
+    Route::resource('penduduk', PendudukController::class);
 
     // --- LINGKUNGAN & BARANG (Hak akses diatur di dalam Controller) ---
     Route::resource('infrastruktur', InfrastrukturController::class);
