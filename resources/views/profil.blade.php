@@ -167,7 +167,6 @@
                                     <tr><td>Bekerja</td><td>:</td><td class="font-weight-bold">{{ $bekerja ?? 0 }} Orang</td></tr>
                                     <tr><td>Tidak Bekerja</td><td>:</td><td class="font-weight-bold">{{ $tidakbekerja ?? 0 }} Orang</td></tr>
                                     {{-- TAMBAHAN: Menampilkan data 'usaha' --}}
-                                    <tr><td>Usaha</td><td>:</td><td class="font-weight-bold">{{ $usaha ?? 0 }} Orang</td></tr>
                                 </tbody>
                             </table>
                         </div>
