@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
         // --- PERBAIKAN 2: Hapus 'role_id' dan Gunakan assignRole() ---
         // 1. Buat Akun Super Admin
         $superAdminUser = User::create([
-            'name'          => 'Super Administrator',
+            'name'          => 'Super Administrator', // <-- Tetap sama
             'username'      => 'superadmin',
             'email'         => 'admin@simdawani.com',
             'password'      => Hash::make('superadmin123'),
@@ -51,7 +51,7 @@ class UserSeeder extends Seeder
 
         // 2. Buat Akun Kecamatan
         $kecamatanUser = User::create([
-            'name'          => 'Admin Kecamatan Tawang',
+            'name'          => 'Kecamatan Tawang', // <-- DIUBAH
             'username'      => 'kec_tawang',
             'email'         => 'tawang@gmail.com',
             'password'      => Hash::make('tawanghebat'),
@@ -77,7 +77,7 @@ class UserSeeder extends Seeder
 
             // 3. Buat Akun Kelurahan
             $kelurahanUser = User::create([
-                'name'              => 'Admin Kelurahan ' . $data['nama'],
+                'name'              => 'Kelurahan ' . $data['nama'], // <-- DIUBAH
                 'username'          => 'kel_' . $namaKelurahanLower,
                 'email'             => $namaKelurahanLower . '@kelurahan.com',
                 'password'          => Hash::make('password'),
@@ -94,7 +94,7 @@ class UserSeeder extends Seeder
 
                 // 4. Buat Akun RW
                 $rwUser = User::create([
-                    'name'              => 'Ketua RW ' . $nomorRW . ' - ' . $data['nama'],
+                    'name'              => 'RW ' . $nomorRW . ' - ' . $data['nama'], // <-- DIUBAH
                     'username'          => 'rw' . $nomorRW . '_' . $namaKelurahanLower,
                     'email'             => 'rw' . $nomorRW . '.' . $namaKelurahanLower . '@rw.com',
                     'password'          => Hash::make('password'),
@@ -118,7 +118,7 @@ class UserSeeder extends Seeder
                     
                     // 5. Buat Akun RT
                     $rtUser = User::create([
-                        'name'              => 'Ketua RT ' . $nomorRT . ' / RW ' . $nomorRW . ' - ' . $data['nama'],
+                        'name'              => 'RT ' . $nomorRT . ' / RW ' . $nomorRW . ' - ' . $data['nama'], // <-- DIUBAH
                         'username'          => 'rt' . $nomorRT . '_rw' . $nomorRW . '_' . $namaKelurahanLower,
                         'email'             => 'rt' . $nomorRT . '.rw' . $nomorRW . '.' . $namaKelurahanLower . '@rt.com',
                         'password'          => Hash::make('password'),
