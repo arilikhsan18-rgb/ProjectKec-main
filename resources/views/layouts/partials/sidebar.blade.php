@@ -8,7 +8,7 @@
 <ul class="navbar-nav bg-gradient-info sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
         <div class="sidebar-brand-icon">
             <img src="{{ asset('img/tsk.png') }}" alt="Logo" style="width: 40px; border-radius: 60%;">
         </div>
@@ -47,7 +47,7 @@
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">Pilih Data:</h6>
                     <a class="collapse-item" href="{{ route('geografis.index') }}">Geografis</a>
-                    <a class="collapse-item" href="{{ route('fasum.index') }}">Fasilitas Umum</a>
+                    <a class="collapse-item" href="{{ route('fasilitas.index') }}">Fasilitas </a>
                     <a class="collapse-item" href="{{ route('infrastruktur.index') }}">Infrastrukur</a>
                     <a class="collapse-item" href="{{ route('penduduk.index') }}">Penduduk</a>
                 </div>

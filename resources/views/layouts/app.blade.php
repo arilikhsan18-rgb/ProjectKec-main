@@ -16,6 +16,30 @@
     <link href="{{ asset('template/css/sb-admin-2.min.css')}}" rel="stylesheet">
     
     @stack('styles')
+
+    {{-- ======================================================= --}}
+    {{-- VVV CSS BARU UNTUK LAYOUT FIXED VVV --}}
+    {{-- ======================================================= --}}
+    <style>
+        /* 1. Atur html, body, dan #wrapper untuk mengisi seluruh layar */
+        html, body, #wrapper {
+            height: 100%;
+            overflow: hidden; /* Mencegah scrollbar di body utama */
+        }
+
+        /* 2. Atur #content-wrapper (kolom kanan) untuk mengisi tinggi layar juga */
+        #content-wrapper {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 3. INI KUNCINYA: Jadikan #content sebagai satu-satunya area yang bisa di-scroll */
+        #content {
+            flex: 1; /* Membuat #content mengisi semua ruang kosong yang tersisa */
+            overflow-y: auto; /* Menambahkan scrollbar HANYA di area ini */
+        }
+    </style>
 </head>
 
 <body id="page-top">
@@ -29,7 +53,7 @@
             @include('layouts.partials.topbar')
 
             <div id="content">
-                <div class="container-fluid pt-4"> {{-- Menambah padding top agar konten tidak terlalu mepet navbar --}}
+                <div class="container-fluid pt-4"> 
                     @yield('content')
                 </div>
             </div>
@@ -72,52 +96,8 @@
     <script src="{{ asset('template/vendor/jquery-easing/jquery.easing.min.js')}}"></script>
     <script src="{{ asset('template/js/sb-admin-2.min.js')}}"></script>
     
-    {{-- Script untuk Chart (opsional) --}}
-    <script src="{{ asset('template/vendor/chart.js/Chart.min.js')}}"></script>
-    
     @stack('scripts')
 
-    <style>
-        .data-table .table-section-header td {
-            background-color: #f8f9fc;
-            font-weight: 600;
-            color: #4e73df;
-            border-top: 2px solid #4e73df;
-            font-size: 1rem;
-        }
-
-        .data-table .fas {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* ======================================================= */
-        /* VVV CSS YANG DIPERKUAT UNTUK LAYOUT VVV */
-        /* ======================================================= */
-        html, body {
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #wrapper {
-            display: flex;
-            height: 100%;
-            width: 100%;
-        }
-
-        #content-wrapper {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            height: 100vh;
-        }
-
-        #content {
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-    </style>
 </body>
 
 </html>

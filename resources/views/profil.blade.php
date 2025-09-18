@@ -106,7 +106,6 @@
                                         <td>Kematian</td><td>:</td><td class="font-weight-bold">{{ $lampid['kematian'] ?? 0 }} Orang</td>
                                     </tr>
                                     <tr>
-                                        {{-- PERBAIKAN: Menggunakan 'datang' sesuai controller --}}
                                         <td>Pindah / Datang</td><td>:</td><td class="font-weight-bold">{{ $lampid['pindah'] ?? 0 }} / {{ $lampid['datang'] ?? 0 }} Orang</td>
                                     </tr>
                                 </tbody>
@@ -166,7 +165,7 @@
                                     <tr><td colspan="3"><hr class="my-1"></td></tr>
                                     <tr><td>Bekerja</td><td>:</td><td class="font-weight-bold">{{ $bekerja ?? 0 }} Orang</td></tr>
                                     <tr><td>Tidak Bekerja</td><td>:</td><td class="font-weight-bold">{{ $tidakbekerja ?? 0 }} Orang</td></tr>
-                                    {{-- TAMBAHAN: Menampilkan data 'usaha' --}}
+                                    <tr><td>Usaha</td><td>:</td><td class="font-weight-bold">{{ $usaha ?? 0 }} Orang</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -178,6 +177,49 @@
             </div>
         </div>
     </div>
+    
+    {{-- BARIS BARU UNTUK DATA FASILITAS --}}
+    <div class="row">
+        <div class="col-lg-12 mb-4">
+            <div class="card border-left-dark shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Ringkasan Fasilitas (Total: {{ array_sum($fasilitasTotals->toArray()) }})
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-3">
+                                    <div class="h6 mb-0 text-gray-800">
+                                        <i class="fas fa-mosque text-gray-500 mr-2"></i><span class="font-weight-bold">Ibadah:</span> {{ $fasilitasTotals['Tempat Ibadah'] ?? 0 }}
+                                    </div>
+                                </div>
+                                 <div class="col-md-3">
+                                    <div class="h6 mb-0 text-gray-800">
+                                        <i class="fas fa-school text-gray-500 mr-2"></i><span class="font-weight-bold">Pendidikan:</span> {{ $fasilitasTotals['Pendidikan'] ?? 0 }}
+                                    </div>
+                                </div>
+                                 <div class="col-md-3">
+                                    <div class="h6 mb-0 text-gray-800">
+                                        <i class="fas fa-clinic-medical text-gray-500 mr-2"></i><span class="font-weight-bold">Kesehatan:</span> {{ $fasilitasTotals['Kesehatan'] ?? 0 }}
+                                    </div>
+                                </div>
+                                 <div class="col-md-3">
+                                    <div class="h6 mb-0 text-gray-800">
+                                        <i class="fas fa-store text-gray-500 mr-2"></i><span class="font-weight-bold">Umum:</span> {{ $fasilitasTotals['Umum'] ?? 0 }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-hospital-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -188,43 +230,46 @@
         const rwSelect = document.getElementById('rw_id');
         const rtSelect = document.getElementById('rt_id');
 
-        function filterDropdown(parentSelect, childSelect, parentIdAttribute) {
-            if (!parentSelect || !childSelect) return;
-            const parentId = parentSelect.value;
+        if (kelurahanSelect) {
+            function filterDropdown(parentSelect, childSelect, parentIdAttribute) {
+                if (!parentSelect || !childSelect) return;
+                const parentId = parentSelect.value;
 
-            for (let option of childSelect.options) {
-                if (option.value === "") continue;
-                const attributeValue = option.getAttribute(parentIdAttribute);
-                if (parentId === "" || attributeValue === parentId) {
-                    option.style.display = "block";
-                } else {
-                    option.style.display = "none";
+                for (let option of childSelect.options) {
+                    if (option.value === "") continue;
+                    const attributeValue = option.getAttribute(parentIdAttribute);
+                    if (parentId === "" || attributeValue === parentId) {
+                        option.style.display = "block";
+                    } else {
+                        option.style.display = "none";
+                    }
                 }
             }
-        }
-        
-        function resetAndFilter(parentSelect, childSelect, childAttribute, grandChildSelect = null, grandChildAttribute = null) {
-            if (childSelect) {
-                childSelect.value = "";
-                filterDropdown(parentSelect, childSelect, childAttribute);
+            
+            function resetAndFilter(parentSelect, childSelect, childAttribute, grandChildSelect = null, grandChildAttribute = null) {
+                if (childSelect) {
+                    childSelect.value = "";
+                    filterDropdown(parentSelect, childSelect, childAttribute);
+                }
+                if (grandChildSelect) {
+                    grandChildSelect.value = "";
+                    filterDropdown(childSelect, grandChildSelect, grandChildAttribute);
+                }
             }
-            if (grandChildSelect) {
-                grandChildSelect.value = "";
-                filterDropdown(childSelect, grandChildSelect, grandChildAttribute);
-            }
+
+            kelurahanSelect.addEventListener('change', function() {
+                resetAndFilter(this, rwSelect, 'data-kelurahan', rtSelect, 'data-rw');
+            });
+
+            rwSelect.addEventListener('change', function() {
+                resetAndFilter(this, rtSelect, 'data-rw');
+            });
+
+            // Jalankan saat halaman dimuat untuk memastikan filter awal sudah benar
+            filterDropdown(kelurahanSelect, rwSelect, 'data-kelurahan');
+            filterDropdown(rwSelect, rtSelect, 'data-rw');
         }
-
-        kelurahanSelect.addEventListener('change', function() {
-            resetAndFilter(this, rwSelect, 'data-kelurahan', rtSelect, 'data-rw');
-        });
-
-        rwSelect.addEventListener('change', function() {
-            resetAndFilter(this, rtSelect, 'data-rw');
-        });
-
-        // Jalankan saat halaman dimuat untuk memastikan filter awal sudah benar
-        filterDropdown(kelurahanSelect, rwSelect, 'data-kelurahan');
-        filterDropdown(rwSelect, rtSelect, 'data-rw');
     });
 </script>
 @endpush
+

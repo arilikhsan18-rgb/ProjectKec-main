@@ -8,6 +8,8 @@ use App\Http\Controllers\GenderController;
 use App\Http\Controllers\LampidController;
 use App\Http\Controllers\GeografisController;
 use App\Http\Controllers\FasumController;
+use App\Http\Controllers\FasilitasController;
+use App\Http\Controllers\SidakepController;
 use App\Http\Controllers\PendudukController;
 use App\Http\Controllers\InfrastrukturController;
 use App\Http\Controllers\InventarisController;
@@ -37,11 +39,16 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'authenticate']);
 });
 
+
+
+
 // Grup untuk semua yang sudah login
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
+    Route::get('/sidakep', [SidakepController::class, 'index'])->name('sidakep');
+    
 
     // Daftarkan rute kustom (seperti cetak) SEBELUM Route::resource
     Route::get('/resident/cetak', [ResidentController::class, 'printPDF'])->name('resident.cetak');
@@ -72,6 +79,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('fasum', FasumController::class);
     Route::resource('geografis', GeografisController::class);
     Route::resource('penduduk', PendudukController::class);
+    Route::resource('fasilitas', FasilitasController::class);
 
     // --- LINGKUNGAN & BARANG (Hak akses diatur di dalam Controller) ---
     Route::resource('infrastruktur', InfrastrukturController::class);

@@ -8,9 +8,9 @@
         <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
         {{-- Tombol Laporan hanya muncul untuk atasan --}}
         @hasanyrole('SUPERADMIN|KECAMATAN|KELURAHAN|RW')
-        <a href="{{ route('report.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <!--a href="{{ route('report.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
             <i class="fas fa-chart-pie fa-sm text-white-50"></i> Lihat Laporan Agregat
-        </a>
+        </a-->
         @endhasanyrole
     </div>
 
